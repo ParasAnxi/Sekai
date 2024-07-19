@@ -9,6 +9,8 @@ import { reqResLog } from "./middleware/requestResponseHandler.js";
 import { errorLog } from "./middleware/errorHandler.js";
 //**DATABASE IMPORTS */
 import { connectDB } from "./controllers/connectDB.js";
+//** ROUTES IMPORTS */
+import authRoutes from "./routes/auth.js";
 
 /* CONFIG */
 
@@ -22,6 +24,9 @@ app.use(bodyParser.json({ limit: "30mb", extended: true }));
 /** CUSTOM LOGGER */
 app.use(reqResLog);
 app.use(errorLog);
+
+/** ROUTES */
+app.use("/auth",authRoutes);
 
 //** SERVER */
 const PORT = process.env.PORT;
