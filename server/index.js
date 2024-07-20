@@ -11,6 +11,7 @@ import { errorLog } from "./middleware/errorHandler.js";
 import { connectDB } from "./controllers/connectDB.js";
 //** ROUTES IMPORTS */
 import authRoutes from "./routes/auth.js";
+import existRoutes from "./routes/exist.js";
 
 /* CONFIG */
 
@@ -27,6 +28,7 @@ app.use(errorLog);
 
 /** ROUTES */
 app.use("/auth",authRoutes);
+app.use("/find",existRoutes);
 
 //** SERVER */
 const PORT = process.env.PORT;

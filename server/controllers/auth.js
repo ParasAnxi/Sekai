@@ -1,7 +1,6 @@
 //** IMPORTS */
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
-import { isMatch } from "date-fns";
 import jwt from "jsonwebtoken";
 
 /** REGISTER USER */

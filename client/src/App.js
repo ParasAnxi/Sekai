@@ -1,23 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+//** IMPORTS */
+import { BrowserRouter as Router, Navigate, Routes, Route } from "react-router-dom";
+import { useMemo } from "react";
+//** MUI */
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
+import { themeSettings } from "theme/theme";
+//** COMPONENTS */
+import Auth from "./scenes/auth/Auth";
+//** REDUX */
+import { useSelector } from "react-redux";
 
 function App() {
+  const mode = useSelector((state)=>state.user.theme);
+  const theme = useMemo(()=>createTheme(themeSettings(mode)),[mode]);
+  
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+        <ThemeProvider theme = {theme}>
+          <CssBaseline/>
+          <Routes>
+            <Route path = "/" element = { <Auth/> }/>
+          </Routes>
+        </ThemeProvider>
+      </Router>
     </div>
   );
 }
