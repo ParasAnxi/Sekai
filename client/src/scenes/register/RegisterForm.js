@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 //** FROM */
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -16,9 +15,10 @@ import {
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { palette } from "@mui/system";
+import { VisibilityOff } from "@mui/icons-material";
 //** REDUCERS */
 import { userRegister } from "features/user/userSlice";
+import SuccessAndError from "components/flex/Status";
 //** FORM VALUES */
 const initialValues = {
   email: "",
@@ -27,22 +27,17 @@ const initialValues = {
   confirmPassword: "",
 };
 
-const RegisterForm = ({SetFormType}) => {
+const RegisterForm = () => {
   const isNonMobileScreen = useMediaQuery("(min-width:600px)");
   const dispatch = useDispatch();
-  const Navigate = useNavigate();
   const { palette } = useTheme();
   //** PASSWORD VISIBILITY */
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  //** EXIST VALUES */
-  const [checkEmail, setCheckEmail] = useState("");
-  const [checkName, setCheckName] = useState("");
-
-  const handleFormSubmit = async (values, onSubmitProps) => {
+  const error = useSelector((state)=>state.user.error);
+//** FORM DATA */
+  const handleFormSubmit = async (values) => {
     dispatch(userRegister(values));
-    onSubmitProps.resetForm();
-    SetFormType("loginForm");
   };
 
   //** REGISTER SCHEMA VALIDATION */
@@ -102,124 +97,144 @@ const RegisterForm = ({SetFormType}) => {
       .oneOf([yup.ref("password"), null], "Passwords must match")
       .required("Confirm password is required"),
   });
-
+  
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={registerSchema}
-      onSubmit={handleFormSubmit}
-    >
-      {({
-        values,
-        errors,
-        touched,
-        handleBlur,
-        handleChange,
-        handleSubmit,
-        setFieldValue,
-        resetForm,
-      }) => (
-        <form onSubmit={handleSubmit}>
-          <Box
-            display="grid"
-            gap="25px"
-            sx={{
-              "& > div": {
-                gridColumn: isNonMobileScreen ? undefined : "span 4",
-              },
-            }}
-          >
-            <TextField
-              label="Name"
-              name="userName"
-              onBlur={handleBlur}
-              onChange={(e) => {
-                setFieldValue("userName", e.target.value);
-                setCheckName(e.target.value);
-              }}
-              value={values.userName}
-              error={Boolean(touched.userName) && Boolean(errors.userName)}
-              helperText={touched.userName && errors.userName}
-              sx={{ gridColumn: "span 4" }}
-            />
-            <TextField
-              label="Email"
-              name="email"
-              onBlur={handleBlur}
-              onChange={(e) => {
-                setFieldValue("email", e.target.value);
-                setCheckEmail(e.target.value);
-              }}
-              value={values.email}
-              error={Boolean(touched.email) && Boolean(errors.email)}
-              helperText={touched.email && errors.email}
-              sx={{ gridColumn: "span 4" }}
-            />
-            <TextField
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)}>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              type={showPassword ? "text" : "password"}
-              label="Password"
-              name="password"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.password}
-              error={Boolean(touched.password) && Boolean(errors.password)}
-              helperText={touched.password && errors.password}
-              sx={{ gridColumn: "span 2" }}
-            />
-            <TextField
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                    >
-                      <VisibilityIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              type={showConfirmPassword ? "text" : "password"}
-              label="Confirm Password"
-              name="confirmPassword"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              value={values.confirmPassword}
-              error={
-                Boolean(touched.confirmPassword) &&
-                Boolean(errors.confirmPassword)
-              }
-              helperText={touched.confirmPassword && errors.confirmPassword}
-              sx={{ gridColumn: "span 2" }}
-            />
-          </Box>
-          <Box>
-            <Button
-              fullWidth
-              type="sumbit"
+    <>
+      {error === "error" ? (
+        <SuccessAndError
+          type={"error"}
+          color={"red"}
+          message={"User Not Registered!"}
+          time={5000}
+        />
+      ) : null}
+      {error === "noError" ? (
+        <SuccessAndError
+          type={"success"}
+          color={"green"}
+          message={"User Registered Successfully!"}
+          time={1000}
+          formType={"loginPage"}
+        />
+      ) : null}
+
+      <Formik
+        initialValues={initialValues}
+        validationSchema={registerSchema}
+        onSubmit={handleFormSubmit}
+      >
+        {({
+          values,
+          errors,
+          touched,
+          handleBlur,
+          handleChange,
+          handleSubmit,
+          setFieldValue,
+        }) => (
+          <form onSubmit={handleSubmit}>
+            <Box
+              display="grid"
+              gap="25px"
               sx={{
-                margin: "2rem 0",
-                padding: "1rem",
-                backgroundColor: palette.primary.main,
-                color: palette.background.alt,
+                "& > div": {
+                  gridColumn: isNonMobileScreen ? undefined : "span 4",
+                },
               }}
             >
-              <Typography fontWeight="500">REGISTER</Typography>
-            </Button>
-          </Box>
-        </form>
-      )}
-    </Formik>
+              <TextField
+                label="Name"
+                name="userName"
+                onBlur={handleBlur}
+                onChange={(e) => {
+                  setFieldValue("userName", e.target.value);
+                }}
+                value={values.userName}
+                error={Boolean(touched.userName) && Boolean(errors.userName)}
+                helperText={touched.userName && errors.userName}
+                sx={{ gridColumn: "span 4" }}
+              />
+              <TextField
+                label="Email"
+                name="email"
+                onBlur={handleBlur}
+                onChange={(e) => {
+                  setFieldValue("email", e.target.value);
+                }}
+                value={values.email}
+                error={Boolean(touched.email) && Boolean(errors.email)}
+                helperText={touched.email && errors.email}
+                sx={{ gridColumn: "span 4" }}
+              />
+              <TextField
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <VisibilityIcon /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                type={showPassword ? "text" : "password"}
+                label="Password"
+                name="password"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.password}
+                error={Boolean(touched.password) && Boolean(errors.password)}
+                helperText={touched.password && errors.password}
+                sx={{ gridColumn: "span 2" }}
+              />
+              <TextField
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                      >
+                        {showConfirmPassword ? <VisibilityIcon /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                type={showConfirmPassword ? "text" : "password"}
+                label="Confirm Password"
+                name="confirmPassword"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.confirmPassword}
+                error={
+                  Boolean(touched.confirmPassword) &&
+                  Boolean(errors.confirmPassword)
+                }
+                helperText={touched.confirmPassword && errors.confirmPassword}
+                sx={{ gridColumn: "span 2" }}
+              />
+            </Box>
+            <Box>
+              <Button
+                fullWidth
+                type="sumbit"
+                sx={{
+                  margin: "2rem 0",
+                  padding: "1rem",
+                  borderRadius: "2rem",
+                  backgroundColor: palette.primary.main,
+                  color: palette.background.alt,
+                }}
+              >
+                <Typography fontWeight="500">REGISTER</Typography>
+              </Button>
+            </Box>
+          </form>
+        )}
+      </Formik>
+    </>
   );
 };
 

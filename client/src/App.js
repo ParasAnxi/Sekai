@@ -1,18 +1,34 @@
 //** IMPORTS */
 import { BrowserRouter as Router, Navigate, Routes, Route } from "react-router-dom";
 import { useMemo } from "react";
+import { jwtDecode } from "jwt-decode";
 //** MUI */
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { themeSettings } from "theme/theme";
 //** COMPONENTS */
 import Auth from "./scenes/auth/Auth";
+import Home from "scenes/home/Home";
 //** REDUX */
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setLogOut } from "features/user/userSlice";
+import ResetPassword from "scenes/forgotPassword/ResetPassword";
 
 function App() {
   const mode = useSelector((state)=>state.user.theme);
   const theme = useMemo(()=>createTheme(themeSettings(mode)),[mode]);
+  const dispatch = useDispatch();
+  //** REDUCER CONFIG */
+  const token = useSelector((state)=>state.user.token);
+  const auth = Boolean(useSelector((state)=>state.user.token))
+  if(token != null){
+    const decodedToken = jwtDecode(token);
+    setInterval(()=>{
+      if(decodedToken.exp < (new Date().getTime())/1000){
+        dispatch(setLogOut());
+      }
+    },(1000 * 60 * 1))
+  }
   
   return (
     <div className="App">
@@ -20,7 +36,15 @@ function App() {
         <ThemeProvider theme = {theme}>
           <CssBaseline/>
           <Routes>
-            <Route path = "/" element = { <Auth/> }/>
+            <Route path="/" element = {auth ? <Navigate to = '/home'/> : <Auth/>} />
+            <Route
+              path="/home"
+              element={auth ? <Home /> : <Navigate to="/" />}
+            />
+            <Route
+              path="/reset-password/:id/:token"
+              element = {<ResetPassword/>}
+            />
           </Routes>
         </ThemeProvider>
       </Router>
