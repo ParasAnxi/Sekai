@@ -29,6 +29,7 @@ const Auth = () => {
             borderRadius="1.5rem"
             backgroundColor={palette.background.alt}
             textAlign="center"
+            sx={{ boxShadow: 3 }}
           >
             <Typography color="primary" fontWeight="bold" fontSize="2.0rem">
               Forgot Password
@@ -59,6 +60,7 @@ const Auth = () => {
             borderRadius="1.5rem"
             backgroundColor={palette.background.alt}
             textAlign="center"
+            sx={{ boxShadow: 3 }}
           >
             <Typography color="primary" fontWeight="bold" fontSize="2.0rem">
               Sekai
@@ -72,15 +74,16 @@ const Auth = () => {
             >
               Welcome to Sekai!
             </Typography>
-            {pageType === "loginPage" ? (
-              <LoginForm/>
-            ) : (
-              <RegisterForm/>
-            )}
+            {pageType === "loginPage" ? <LoginForm /> : <RegisterForm />}
             <Typography
               onClick={() => {
-                const page = pageType === "loginPage" ? "registerPage" : "loginPage";
-                dispatch(setFormType(pageType === "loginPage" ? "registerPage" : "loginPage"));
+                const page =
+                  pageType === "loginPage" ? "registerPage" : "loginPage";
+                dispatch(
+                  setFormType(
+                    pageType === "loginPage" ? "registerPage" : "loginPage"
+                  )
+                );
               }}
               sx={{
                 display: "flex",

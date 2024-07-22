@@ -90,6 +90,7 @@ const ResetPassword = () => {
           borderRadius="1.5rem"
           backgroundColor={palette.background.alt}
           textAlign="center"
+          sx={{ boxShadow: 3 }}
         >
           <Typography color="primary" fontWeight="bold" fontSize="2.0rem">
             Reset Password
