@@ -18,7 +18,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { VisibilityOff } from "@mui/icons-material";
 //** REDUCERS */
 import { userRegister } from "features/user/userSlice";
-import SuccessAndError from "components/flex/Status";
+import SuccessAndError from "components/status/Status";
 //** FORM VALUES */
 const initialValues = {
   email: "",

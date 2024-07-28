@@ -20,7 +20,7 @@ import { VisibilityOff } from "@mui/icons-material";
 //** REDUCERS */
 import { changePassword } from "features/user/userSlice";
 //** COMPONENTS */
-import SuccessAndError from "components/flex/Status";
+import SuccessAndError from "components/status/Status";
 
 const forgotPasswordSchema = yup.object({
   password: yup

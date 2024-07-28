@@ -1,5 +1,7 @@
+//** IMPORTS */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+//** CONFIG */
 const initialState = {
   theme: "light",
   user: null,
@@ -55,11 +57,14 @@ export const changePassword = createAsyncThunk("auth/changepassword",async({id,t
   const data = await response.json();
   return data;
 });
-
+//** REDUCERS */
 export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+      setTheme:(state)=>{
+        state.theme = state.theme === "light" ? "dark" : "light";
+      },
       setLogOut:(state)=>{
         state.user = null;
         state.token = null;
@@ -103,5 +108,5 @@ export const userSlice = createSlice({
   }
 });
 
-export const { setLogOut, setError } = userSlice.actions;
+export const { setTheme, setLogOut, setError } = userSlice.actions;
 export default userSlice.reducer;

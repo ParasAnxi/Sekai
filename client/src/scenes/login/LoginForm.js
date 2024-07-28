@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 //** FROM */
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -20,9 +20,9 @@ import Checkbox from "@mui/material/Checkbox";
 import FlexBetween from "components/flex/FlexBetween";
 import { VisibilityOff } from "@mui/icons-material";
 //** REDUCERS */
-import { userLogin } from "features/user/userSlice";
+import { setError, userLogin } from "features/user/userSlice";
 import { setFormType } from "features/form/formSlice";
-import SuccessAndError from "components/flex/Status";
+import SuccessAndError from "components/status/Status";
 
 //** LOGIN SCHEMA VALIDATION */
 const loginSchema = yup.object({
@@ -32,7 +32,7 @@ const loginSchema = yup.object({
     .required("Please enter your Email!"),
   password: yup.string().min(5).required("Please enter your password"),
 });
-
+//** CONFIG */
 const initialValues = {
   email: "",
   password: "",
@@ -46,17 +46,21 @@ const LoginForm = () => {
   //** PASSWORD VISIBILITY */
   const [showPassword, setShowPassword] = useState(false);
   //** HANDLE FORM */
+  const error = useSelector((state)=>state.user.error);
   const handleFormSubmit = async (values) => {
     dispatch(userLogin(values));
+    dispatch(setError());
   };
   return (
     <>
-      <SuccessAndError
-        type={"error"}
-        color={"red"}
-        message={"Invalid Credentials!"}
-        time={5000}
-      />
+      {error === "error" ? (
+        <SuccessAndError
+          type={"error"}
+          color={"red"}
+          message={"Invalid Credentials!"}
+          time={5000}
+        />
+      ) : null}
       <Formik
         onSubmit={handleFormSubmit}
         initialValues={initialValues}
@@ -99,7 +103,7 @@ const LoginForm = () => {
                       <IconButton
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? <VisibilityIcon /> : <VisibilityOff/>}
+                        {showPassword ? <VisibilityIcon /> : <VisibilityOff />}
                       </IconButton>
                     </InputAdornment>
                   ),

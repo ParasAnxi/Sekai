@@ -17,7 +17,7 @@ import { CircularProgress } from '@mui/material';
 import { setFormType } from 'features/form/formSlice';
 import { resetPasswordLink } from 'features/user/userSlice';
 //** COMPONENTS */
-import SuccessAndError from 'components/flex/Status';
+import SuccessAndError from 'components/status/Status';
 //** FORGOT PASSWORD SCHEMA VALIDATION */
 const getEmail = async (checkEmail) => {
   const sendData = {
