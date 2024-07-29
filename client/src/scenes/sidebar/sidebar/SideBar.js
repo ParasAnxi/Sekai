@@ -1,7 +1,6 @@
 import React from "react";
 //** MUI */
 import {
-  IconButton,
   Typography,
   useMediaQuery,
   useTheme,
@@ -24,6 +23,8 @@ import SideBarMenu from "../components/SideBarMenu";
 const SideBar = () => {
   const { palette } = useTheme();
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
+  const isMobileScreens = useMediaQuery("(min-width:600px)");
+  const minHeight = useMediaQuery("(min-height: 643px)");
   const dispatch = useDispatch();
   return (
     <FlexBetween
@@ -34,82 +35,85 @@ const SideBar = () => {
       // height="100vh"
       // boxShadow={6}
     >
-      {isNonMobileScreens ? 
-      (<FlexBetween>
-        <Typography
-          fontWeight="bold"
-          fontSize="clamp(1rem,2rem,2.5rem)"
-          color={palette.primary.dark}
-          sx={{
-            "&:hover": {
-              color: palette.primary.light,
-              cursor: "pointer",
-            },
-          }}
+      {isNonMobileScreens ? (
+        <FlexBetween>
+          <Typography
+            fontWeight="bold"
+            fontSize="clamp(1rem,2rem,2.5rem)"
+            color={palette.primary.dark}
+            sx={{
+              "&:hover": {
+                color: palette.primary.light,
+                cursor: "pointer",
+              },
+            }}
           >
-          Sekai
-        </Typography>
-      </FlexBetween>)
-        :(<FlexBetween>
-        <Typography
-          fontWeight="bold"
-          fontSize="clamp(1rem,2rem,2.5rem)"
-          color={palette.primary.dark}
-          sx={{
-            "&:hover": {
-              color: palette.primary.light,
-              cursor: "pointer",
-            },
-          }}
+            Sekai
+          </Typography>
+        </FlexBetween>
+      ) : (
+        <FlexBetween>
+          <Typography
+            fontWeight="bold"
+            fontSize="clamp(1rem,2rem,2.5rem)"
+            color={palette.primary.dark}
+            sx={{
+              "&:hover": {
+                color: palette.primary.light,
+                cursor: "pointer",
+              },
+            }}
           >
-          S
-        </Typography>
-      </FlexBetween>)}
-      {isNonMobileScreens ? (<Box width="100%">
-        <SidebarComp Icon={HomeIcon} name={"Home"} />
-        <SidebarComp Icon={SearchIcon} name={"Search"} />
-        <SidebarComp Icon={ExploreOutlinedIcon} name={"Explore"} />
-        <SidebarComp Icon={MovieFilterOutlinedIcon} name={"Reels"} />
-        <SidebarComp Icon={MessageIcon} name={"Messages"} />
-        <SidebarComp Icon={FavoriteIcon} name={"Notifications"} />
-        <SidebarComp Icon={AddBoxOutlinedIcon} name={"Create"} />
-        <SidebarComp
-          Icon={Avatar}
-          name={"Profile"}
-          sx={{ width: 24, height: 24 }}
-        />
-      </Box>):(
-      <Box width="100%">
-        <SidebarComp Icon={HomeIcon} />
-        <SidebarComp Icon={SearchIcon}  />
-        <SidebarComp Icon={ExploreOutlinedIcon}/>
-        <SidebarComp Icon={MovieFilterOutlinedIcon}/>
-        <SidebarComp Icon={MessageIcon}/>
-        <SidebarComp Icon={FavoriteIcon}/>
-        <SidebarComp Icon={AddBoxOutlinedIcon} />
-        <SidebarComp
-          Icon={Avatar}
-          sx={{ width: 24, height: 24 }}
-        />
-      </Box>)}
-      {isNonMobileScreens ? 
-      <FlexBetween
-      flexDirection="column"
-      marginTop="50%"
-      backgroundColor= {palette.background.alt}
-      width="100%"
-      >
-        <SideBarMenu/>
-      </FlexBetween>
-    :  
-      <Box
-      flexDirection="column"
-      backgroundColor= {palette.background.alt}
-      width="100%"
-      >
-        <SideBarMenu/>
-      </Box>
-    }
+            S
+          </Typography>
+        </FlexBetween>
+      )}
+      {isNonMobileScreens ? (
+        <Box width="100%">
+          <SidebarComp Icon={HomeIcon} name={"Home"} />
+          <SidebarComp Icon={SearchIcon} name={"Search"} />
+          <SidebarComp Icon={ExploreOutlinedIcon} name={"Explore"} />
+          <SidebarComp Icon={MovieFilterOutlinedIcon} name={"Reels"} />
+          <SidebarComp Icon={MessageIcon} name={"Messages"} />
+          <SidebarComp Icon={FavoriteIcon} name={"Notifications"} />
+          <SidebarComp Icon={AddBoxOutlinedIcon} name={"Create"} />
+          <SidebarComp
+            Icon={Avatar}
+            name={"Profile"}
+            sx={{ width: 24, height: 24 }}
+          />
+        </Box>
+      ) : (
+        <Box width="100%">
+          <SidebarComp Icon={HomeIcon} />
+          <SidebarComp Icon={SearchIcon} />
+          <SidebarComp Icon={ExploreOutlinedIcon} />
+          <SidebarComp Icon={MovieFilterOutlinedIcon} />
+          <SidebarComp Icon={MessageIcon} />
+          <SidebarComp Icon={FavoriteIcon} />
+          <SidebarComp Icon={AddBoxOutlinedIcon} />
+          <SidebarComp Icon={Avatar} sx={{ width: 24, height: 24 }} />
+        </Box>
+      )}
+      
+      {isNonMobileScreens && minHeight ? (
+        <FlexBetween
+          flexDirection="column"
+          marginTop="50%"
+          backgroundColor={palette.background.alt}
+          width="100%"
+        >
+          <SideBarMenu />
+        </FlexBetween>
+      ) : (
+        <Box
+          flexDirection="column"
+          backgroundColor={palette.background.alt}
+          width="100%"
+        >
+          <SideBarMenu />
+        </Box>
+      )}
     </FlexBetween>
   );
 };

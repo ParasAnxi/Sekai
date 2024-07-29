@@ -12,13 +12,14 @@ const SidebarComp = ({ Icon, name }) => {
   const user = useSelector((state) => state.user.user);
   const { palette } = useTheme();
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
+  const small = useMediaQuery("(min-width:500px)");
   return (
     <Button
       fullWidth
       sx={{
         textTransform: "none",
         color: palette.primary.dark,
-        padding: "1rem",
+        padding: !small ?"0.5": "1rem",
         "&:hover": { color: palette.primary.main },
       }}
     >
@@ -30,7 +31,7 @@ const SidebarComp = ({ Icon, name }) => {
               <Badge badgeContent={19} color="primary">
                 <Icon
                   sx={{
-                    fontSize: "25px",
+                    fontSize: !small ?"30px":"25px",
                   }}
                 />
               </Badge>
