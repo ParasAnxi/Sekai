@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 //** MUI */
 import { Box, Button, Paper, Typography } from "@mui/material";
 import Menu from "@mui/material/Menu";
@@ -7,7 +7,7 @@ import {
   setMoreSettingOpen,
   setMoreSettingClose,
 } from "features/moreSettings/moreSettingSlice";
-import { useTheme } from "@mui/system";
+import { useMediaQuery, useTheme } from "@mui/system";
 import SideMenuComp from "./SideMenuComp";
 import SettingsIcon from "@mui/icons-material/Settings";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
@@ -19,22 +19,27 @@ import SideBarMode from "./SideBarMode";
 //** REDUCERS */
 import { useDispatch, useSelector } from "react-redux";
 const SideBarMenu = () => {
+  const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const { palette } = useTheme();
   const dispatch = useDispatch();
 
-  const handleOpen = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleOpen = (event) => {
     dispatch(setMoreSettingOpen());
+    setAnchorEl(event.currentTarget);
   };
 
   const handleClose = () => {
     dispatch(setMoreSettingClose());
+    setAnchorEl(null);
   };
 
   const open = useSelector((state) => state.moreSetting.moreSettingIsOpen);
 
   return (
     <>
-      <SideBarMode />
+      <SideBarMode anchorEl={anchorEl} />
       <Button
         id="moresetting-button"
         aria-controls={open ? "moresetting-menu" : undefined}
@@ -49,26 +54,29 @@ const SideBarMenu = () => {
           "&:hover": { color: palette.primary.main },
         }}
       >
-        <Box display="flex" flexDirection="row" gap="2rem" width="100%">
+        <Box
+          display="flex"
+          flexDirection="row"
+          gap="2rem"
+          width="100%"
+          justifyContent={!isNonMobileScreens ? "center" : null}
+        >
           <MenuIcon sx={{ fontSize: "30px" }} />
-          <Typography
-            sx={{ fontWeight: "bold", marginTop: "2px", fontSize: "1rem" }}
-          >
-            More
-          </Typography>
+          {isNonMobileScreens ? (
+            <Typography
+              sx={{ fontWeight: "bold", marginTop: "2px", fontSize: "1rem" }}
+            >
+              More
+            </Typography>
+          ) : null}
         </Box>
       </Button>
       <Menu
         id="moresetting-menu"
         elevation={0}
-        anchorOrigin={{
-          vertical: 280,
-          horizontal: 25,
-          vertical: 280,
-          horizontal: 25,
-        }}
         open={open}
         onClose={handleClose}
+        anchorEl={anchorEl}
         MenuListProps={{
           "aria-labelledby": "moresetting-button",
         }}
@@ -76,7 +84,11 @@ const SideBarMenu = () => {
           "& .MuiPaper-root": {
             backgroundColor: "transparent",
             borderRadius: 5,
+            "&::-webkit-scrollbar": {
+              width: "0",
+            },
           },
+          height: !isNonMobileScreens ? "300px" : null,
         }}
       >
         <Paper elevation={2}>

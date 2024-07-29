@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 //** MUI */
 import { Paper } from "@mui/material";
 import Menu from "@mui/material/Menu";
@@ -8,13 +8,13 @@ import SideModeComp from "./SideModeComp";
 //** REDUCERS */
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setModeMenuClose,
+  setModeMenuClose
 } from "features/moreSettings/moreSettingSlice";
 
-const SideBarMode = () => {
-    const { palette } = useTheme();
-    const dispatch = useDispatch();
-    const open = useSelector((state) => state.moreSetting.modesMenuOpen);
+const SideBarMode = ({anchorEl}) => {
+  const { palette } = useTheme();
+  const dispatch = useDispatch();
+  const open = useSelector((state) => state.moreSetting.modesMenuOpen);
 
     const handleClose = ()=>{
         dispatch(setModeMenuClose())
@@ -23,11 +23,8 @@ const SideBarMode = () => {
     <>
       <Menu
         id="mode-menu"
+        anchorEl={anchorEl}
         elevation={0}
-        anchorOrigin={{
-          vertical: 535,
-          horizontal:25,
-        }}
         open={open}
         onClose={handleClose}
         MenuListProps={{
@@ -41,10 +38,7 @@ const SideBarMode = () => {
         }}
       >
         <Paper elevation={2}>
-          <SideModeComp
-            Icon={ArrowBack}
-            name={"Switch Apperance"}
-            />
+          <SideModeComp Icon={ArrowBack} name={"Switch Apperance"} />
           <SideModeComp
             Icon={palette.mode === "dark" ? DarkMode : LightMode}
             name={palette.mode === "dark" ? "Light Mode" : "Dark Mode"}

@@ -1,6 +1,12 @@
 import React from "react";
 //** MUI */
-import { Box, MenuItem, Button, Typography } from "@mui/material";
+import {
+  Box,
+  MenuItem,
+  Button,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { useTheme } from "@emotion/react";
 import { DarkMode, LightMode } from "@mui/icons-material";
@@ -13,6 +19,7 @@ import {
 } from "features/moreSettings/moreSettingSlice";
 
 const SideModeComp = ({ Icon, name, Back }) => {
+  const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const { palette } = useTheme();
   const dispatch = useDispatch();
 
@@ -36,7 +43,7 @@ const SideModeComp = ({ Icon, name, Back }) => {
   return (
     <MenuItem
       sx={{
-        width: "250px",
+        width: isNonMobileScreens ? "250px" : "160px",
         "&": {
           borderRadius: name === "Switch Apperance" ? 5 : undefined,
           borderBottomRightRadius: name === "Switch Apperance" ? 0 : undefined,
@@ -55,7 +62,7 @@ const SideModeComp = ({ Icon, name, Back }) => {
         fullWidth
         sx={{
           textTransform: "none",
-          padding: "0.7rem",
+          padding: !isNonMobileScreens ? "0.3rem" : "0.7rem",
           color: palette.primary.dark,
         }}
         onClick={() => handleMenuFunctions()}
@@ -64,13 +71,16 @@ const SideModeComp = ({ Icon, name, Back }) => {
           {Icon && (
             <Icon
               sx={{
-                fontSize: "25px",
+                fontSize: isNonMobileScreens ? "25px" : "17px",
               }}
             />
           )}
           <Typography
             marginTop="0.2rem"
-            sx={{ fontWeight: "bold", fontSize: "0.9rem" }}
+            sx={{
+              fontWeight: "bold",
+              fontSize: isNonMobileScreens ? "0.9rem" : "0.6rem",
+            }}
           >
             {name}
           </Typography>

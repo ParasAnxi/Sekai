@@ -1,6 +1,6 @@
 import React from "react";
 //** MUI */
-import { Box } from "@mui/system";
+import { Box, useMediaQuery } from "@mui/system";
 import { Button, Typography, Avatar } from "@mui/material";
 import { useTheme } from "@emotion/react";
 import { Badge } from "@mui/material";
@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 const SidebarComp = ({ Icon, name }) => {
   const user = useSelector((state) => state.user.user);
   const { palette } = useTheme();
+  const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   return (
     <Button
       fullWidth
@@ -21,7 +22,8 @@ const SidebarComp = ({ Icon, name }) => {
         "&:hover": { color: palette.primary.main },
       }}
     >
-      <Box display="flex" flexDirection="row" gap="2.3rem" width="100%">
+      <Box display="flex" flexDirection="row" 
+      gap={isNonMobileScreens ? "2.3rem" : null} width="100%" justifyContent=  {!isNonMobileScreens ? "center" : null}>
         {Icon && (
           <>
             {Icon === MessageIcon ? (
