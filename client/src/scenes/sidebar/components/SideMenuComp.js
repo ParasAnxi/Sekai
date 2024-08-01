@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 //** MUI */
 import { Box, MenuItem, Button, Typography, useMediaQuery } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -17,11 +18,12 @@ import {
   setMoreSettingClose,
 } from "features/moreSettings/moreSettingSlice";
 
+
 const SideMenuComp = ({ Icon, name }) => {
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const { palette } = useTheme();
   const dispatch = useDispatch();
-
+  const Navigate = useNavigate();
   const handleMenuFunctions = () => {
     switch (Icon) {
       case SettingsIcon:
@@ -46,6 +48,7 @@ const SideMenuComp = ({ Icon, name }) => {
         break;
       case LogoutIcon:
         dispatch(setLogOut());
+        Navigate("/");
         dispatch(setMoreSettingClose());
         break;
       default:

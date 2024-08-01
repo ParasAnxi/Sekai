@@ -1,6 +1,7 @@
 //** IMPORTS */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
+//** API */
+const USER_API = "http://localhost:3001/auth"
 //** CONFIG */
 const initialState = {
   theme: "light",
@@ -11,7 +12,7 @@ const initialState = {
 };
 //** LOGIN */
 export const userLogin = createAsyncThunk('auth/login',async(data)=>{
-  const response = await fetch("http://localhost:3001/auth/login",{
+  const response = await fetch(`${USER_API}/login`,{
     method: "POST",
     headers:{
       "content-type":"application/json",
@@ -23,7 +24,7 @@ export const userLogin = createAsyncThunk('auth/login',async(data)=>{
 });
 //** REGISTER */
 export const userRegister = createAsyncThunk('auth/register',async(user)=>{
-  const response = await fetch("http://localhost:3001/auth/register",{
+  const response = await fetch(`${USER_API}/register`,{
     method: "POST",
     headers:{
       "content-type":"application/json",
@@ -35,7 +36,7 @@ export const userRegister = createAsyncThunk('auth/register',async(user)=>{
 });
 //** RESET PASSWORD MAIL */
 export const resetPasswordLink = createAsyncThunk("auth/resetpassword",async(email)=>{
-  const response = await fetch("http://localhost:3001/auth/resetpasswordlink",{
+  const response = await fetch(`${USER_API}/resetpasswordlink`,{
     method:"POST",
     headers:{
       "content-type":"application/json"
@@ -47,7 +48,7 @@ export const resetPasswordLink = createAsyncThunk("auth/resetpassword",async(ema
 });
 //** CHANGE PASSWORD */
 export const changePassword = createAsyncThunk("auth/changepassword",async({id,token,password})=>{
-  const response = await fetch(`http://localhost:3001/auth/changepassword/${id}/${token}`,{
+  const response = await fetch(`${USER_API}/changepassword/${id}/${token}`,{
     method:"POST",
     headers:{
       "content-type":"application/json"
@@ -55,8 +56,41 @@ export const changePassword = createAsyncThunk("auth/changepassword",async({id,t
     body:JSON.stringify({password: password})
   });
   const data = await response.json();
+  console.log(data)
   return data;
 });
+//** CHANGE PROFILE PIC */
+export const changeProfilePic = createAsyncThunk("/auth/profilepic",async(formData)=>{
+  const userName = formData.get("userName");
+  console.log(userName)
+  const response = await fetch(`${USER_API}/profilepic/${userName}`, {
+    method: "POST",
+    headers: {
+      // Authorization: `Bearer`,
+      // "content-type": "application/json",
+  
+    },
+    body: formData
+  });
+  const data = await response.json();
+  console.log(data)
+  return data;
+});
+//** CHANGE INFO */
+export const changeInfo = createAsyncThunk("/auth/chnageinfo",async(user)=>{
+  const { userName } = user;
+  const response = await fetch(`${USER_API}/changeinfo/${userName}`, {
+    method: "POST",
+    headers: {
+      //Authorization: `Bearer ${verifyToken}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(user),
+  });
+  const data = await response.json();
+  console.log(data);
+  return data;
+})
 //** REDUCERS */
 export const userSlice = createSlice({
   name: "user",
@@ -82,7 +116,7 @@ export const userSlice = createSlice({
         state.status = "idle";
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.error = action.payload.error ? 'error' : 'noError';
+        state.error = action.payload.error ? 'error' : null;
       })
       .addCase(userRegister.pending,(state)=>{
         state.status = 'loading';
@@ -104,6 +138,22 @@ export const userSlice = createSlice({
       .addCase(changePassword.fulfilled, (state,action) => {
         state.status = "idle";
         state.error = action.payload.error ? 'error' : 'noError';
+      })
+      .addCase(changeProfilePic.pending,(state)=>{
+        state.status = "loading";
+      })
+      .addCase(changeProfilePic.fulfilled,(state,action)=>{
+        state.status = "idle";
+        state.user = action.payload.user;
+        state.error = action.payload.error ? "error" : "noError";
+      })
+      .addCase(changeInfo.pending,(state)=>{
+        state.status = "loading";
+      })
+      .addCase(changeInfo.fulfilled,(state,action)=>{
+        state.status = "idle";
+        state.user = action.payload.user;
+        state.error = action.payload.error ? "error" : "noError";
       });
   }
 });

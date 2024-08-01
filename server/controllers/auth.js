@@ -40,8 +40,6 @@ export const loginUser = async(req,res)=>{
             expiresIn: "30d"
           })
           user.password = undefined;
-          user.followers = undefined;
-          user.following = undefined;
           user.resetPasswordToken = undefined;
           res.status(200).json({ token, user });
         }
@@ -50,8 +48,6 @@ export const loginUser = async(req,res)=>{
             expiresIn: "10m",
           });
           user.password = undefined;
-          user.followers = undefined;
-          user.following = undefined;
           user.resetPasswordToken = undefined;
           res.status(200).json({ token, user});
         }
@@ -110,5 +106,35 @@ export const changePassword = async(req, res)=>{
       }
   }catch(error){
       res.status(400).json({error: error})
+  }
+};
+//** PROFILE PIC */
+export const changeProfilePic = async(req, res)=>{
+  const { userName } = req.params;
+  const { profilePicture } = req.body;
+  try{
+    const user = await User.findOne({ userName: userName});
+    const newProfilePic =  await User.findByIdAndUpdate({_id:user.id},{profilePicture:profilePicture},{new:true});
+    const updatedUser = await newProfilePic.save();
+    updatedUser.password = undefined;
+    updatedUser.resetPasswordToken = undefined;
+    res.status(201).json({user: updatedUser});
+  }catch(error){
+    res.status(400).json({ error:error });
+  }
+};
+//** NAME AND BIO */
+export const changeInfo = async(req, res)=>{
+  const { userName } = req.params;
+  const { nickName, bio } = req.body;
+  try{
+    const user = await User.findOne({ userName: userName});
+    const newInfo =  await User.findByIdAndUpdate({_id:user.id},{nickName:nickName, bio:bio},{new:true});
+    const updatedUser = await newInfo.save();
+    updatedUser.password = undefined;
+    updatedUser.resetPasswordToken = undefined;
+    res.status(201).json({ user: updatedUser });
+  }catch(error){
+    res.status(400).json({ error:error });
   }
 };

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-//** FROM */
+//** FORM */
 import { Formik } from "formik";
 import * as yup from "yup";
 //** MUI */

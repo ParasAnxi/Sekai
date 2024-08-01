@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 //** MUI */
 import { Box, useMediaQuery } from "@mui/system";
 import { Button, Typography, Avatar } from "@mui/material";
@@ -9,25 +10,28 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 //** REDUCERS */
 import { useSelector } from "react-redux";
 
-const SidebarComp = ({ Icon, name }) => {
+const SidebarComp = ({ Icon, name, path }) => {
   const user = useSelector((state) => state.user.user);
   const { palette } = useTheme();
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const small = useMediaQuery("(min-width:500px)");
+  const Navigate = useNavigate();
   return (
     <Button
       fullWidth
       sx={{
+        margin:!small ? "0" : "0.2rem",
         textTransform: "none",
         color: palette.primary.dark,
         padding: !small ? "0.5" : "1rem",
         "&:hover": { color: palette.primary.main },
       }}
+      onClick={() => Navigate(path)}
     >
       <Box
         display="flex"
         flexDirection="row"
-        gap={isNonMobileScreens ? "2.3rem" : null}
+        gap={isNonMobileScreens ? "2.3rem" : "0.5rem"}
         width="100%"
         justifyContent={!isNonMobileScreens ? "center" : null}
       >
@@ -54,7 +58,7 @@ const SidebarComp = ({ Icon, name }) => {
 
             {Icon === MessageIcon || Icon === FavoriteIcon ? null : (
               <Icon
-                src={Icon === Avatar && user ? user.profilePicture : null}
+                src={Icon === Avatar && user ? `http://localhost:3001/assets/${user.profilePicture}` : null}
                 sx={{
                   width: Icon === Avatar ? 25 : null,
                   height: Icon === Avatar ? 25 : null,

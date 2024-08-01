@@ -20,7 +20,7 @@ const Home = () => {
         justifyContent="space-between"
         width="100%"
         // backgroundColor="red"
-        padding="0 1rem 1rem 0"
+        // padding=""
         gap="0.5rem"
       >
         <Box
@@ -31,7 +31,7 @@ const Home = () => {
           minHeight="95vh"
           sx={{
             flexBasis: isNonMobileScreens ? "30%" : "18%",
-          }}
+          }}          
         >
           <SideBar />
         </Box>

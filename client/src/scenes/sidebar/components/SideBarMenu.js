@@ -40,69 +40,71 @@ const SideBarMenu = () => {
   return (
     <>
       <SideBarMode anchorEl={anchorEl} />
-      <Button
-        id="moresetting-button"
-        aria-controls={open ? "moresetting-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        onClick={handleOpen}
-        fullWidth
-        sx={{
-          textTransform: "none",
-          color: palette.primary.dark,
-          padding: "1rem",
-          "&:hover": { color: palette.primary.main },
-        }}
-      >
-        <Box
-          display="flex"
-          flexDirection="row"
-          gap="2rem"
-          width="100%"
-          justifyContent={!isNonMobileScreens ? "center" : null}
+      
+        <Button
+          id="moresetting-button"
+          aria-controls={open ? "moresetting-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
+          onClick={handleOpen}
+          fullWidth
+          sx={{
+            textTransform: "none",
+            color: palette.primary.dark,
+            padding: "1rem",
+            "&:hover": { color: palette.primary.main },
+          }}
         >
-          <MenuIcon sx={{ fontSize: "30px" }} />
-          {isNonMobileScreens ? (
-            <Typography
-              sx={{ fontWeight: "bold", marginTop: "2px", fontSize: "1rem" }}
-            >
-              More
-            </Typography>
-          ) : null}
-        </Box>
-      </Button>
-      <Menu
-        id="moresetting-menu"
-        elevation={0}
-        open={open}
-        onClose={handleClose}
-        anchorEl={anchorEl}
-        MenuListProps={{
-          "aria-labelledby": "moresetting-button",
-        }}
-        sx={{
-          "& .MuiPaper-root": {
-            backgroundColor: "transparent",
-            borderRadius: 5,
-            "&::-webkit-scrollbar": {
-              width: "0",
+          <Box
+            display="flex"
+            flexDirection="row"
+            gap="2rem"
+            width="100%"
+            
+            justifyContent={!isNonMobileScreens ? "center" : null}
+          >
+            <MenuIcon sx={{ fontSize: "30px" }} />
+            {isNonMobileScreens ? (
+              <Typography
+                sx={{ fontWeight: "bold", marginTop: "2px", fontSize: "1rem" }}
+              >
+                More
+              </Typography>
+            ) : null}
+          </Box>
+        </Button>
+        <Menu
+          id="moresetting-menu"
+          elevation={0}
+          open={open}
+          onClose={handleClose}
+          anchorEl={anchorEl}
+          MenuListProps={{
+            "aria-labelledby": "moresetting-button",
+          }}
+          sx={{
+            "& .MuiPaper-root": {
+              backgroundColor: "transparent",
+              borderRadius: 5,
+              "&::-webkit-scrollbar": {
+                width: "0",
+              },
             },
-          },
-          height: !isNonMobileScreens ? "300px" : null,
-        }}
-      >
-        <Paper elevation={2}>
-          <SideMenuComp Icon={SettingsIcon} name={"Settings"} />
-          <SideMenuComp Icon={BookmarkIcon} name={"Saved"} />
-          <SideMenuComp
-            Icon={palette.mode === "dark" ? DarkMode : LightMode}
-            name={"Switch Appearance"}
-          />
-          <SideMenuComp Icon={ErrorOutlineIcon} name={"Report a problem"} />
-          <SideMenuComp Icon={SwitchAccountIcon} name={"Switch Account"} />
-          <SideMenuComp Icon={LogoutIcon} name={"Log Out"} />
-        </Paper>
-      </Menu>
+            height: !isNonMobileScreens ? "300px" : null,
+          }}
+        >
+          <Paper elevation={2}>
+            <SideMenuComp Icon={SettingsIcon} name={"Settings"} />
+            <SideMenuComp Icon={BookmarkIcon} name={"Saved"} />
+            <SideMenuComp
+              Icon={palette.mode === "dark" ? DarkMode : LightMode}
+              name={"Switch Appearance"}
+            />
+            <SideMenuComp Icon={ErrorOutlineIcon} name={"Report a problem"} />
+            <SideMenuComp Icon={SwitchAccountIcon} name={"Switch Account"} />
+            <SideMenuComp Icon={LogoutIcon} name={"Log Out"} />
+          </Paper>
+        </Menu>
     </>
   );
 };

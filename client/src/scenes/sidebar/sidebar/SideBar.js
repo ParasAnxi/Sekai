@@ -1,11 +1,6 @@
 import React from "react";
 //** MUI */
-import {
-  Typography,
-  useMediaQuery,
-  useTheme,
-  Box,
-} from "@mui/material";
+import { Typography, useMediaQuery, useTheme, Box } from "@mui/material";
 import FlexBetween from "components/flex/FlexBetween";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
@@ -16,7 +11,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
 import { Avatar } from "@mui/material";
 //** REDUCERS */
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import SidebarComp from "../components/SidebarComp";
 import SideBarMenu from "../components/SideBarMenu";
 
@@ -26,8 +21,11 @@ const SideBar = () => {
   const isMobileScreens = useMediaQuery("(min-width:600px)");
   const minHeight = useMediaQuery("(min-height: 643px)");
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
   return (
-    <FlexBetween
+    <Box
+      display="flex"
+      alignItems="center"
       flexDirection="column"
       padding="1rem 6%"
       backgroundColor={palette.background.alt}
@@ -70,7 +68,7 @@ const SideBar = () => {
       )}
       {isNonMobileScreens ? (
         <Box width="100%">
-          <SidebarComp Icon={HomeIcon} name={"Home"} />
+          <SidebarComp Icon={HomeIcon} name={"Home"} path={"/home"} />
           <SidebarComp Icon={SearchIcon} name={"Search"} />
           <SidebarComp Icon={ExploreOutlinedIcon} name={"Explore"} />
           <SidebarComp Icon={MovieFilterOutlinedIcon} name={"Reels"} />
@@ -81,40 +79,29 @@ const SideBar = () => {
             Icon={Avatar}
             name={"Profile"}
             sx={{ width: 24, height: 24 }}
+            path={`/account/${user.userName}`}
           />
+
+          <SideBarMenu />
         </Box>
       ) : (
         <Box width="100%">
-          <SidebarComp Icon={HomeIcon} />
+          <SidebarComp Icon={HomeIcon} path={"/home"} />
           <SidebarComp Icon={SearchIcon} />
           <SidebarComp Icon={ExploreOutlinedIcon} />
           <SidebarComp Icon={MovieFilterOutlinedIcon} />
           <SidebarComp Icon={MessageIcon} />
           <SidebarComp Icon={FavoriteIcon} />
           <SidebarComp Icon={AddBoxOutlinedIcon} />
-          <SidebarComp Icon={Avatar} sx={{ width: 24, height: 24 }} />
-        </Box>
-      )}
-      
-      {isNonMobileScreens && minHeight ? (
-        <FlexBetween
-          flexDirection="column"
-          marginTop="50%"
-          backgroundColor={palette.background.alt}
-          width="100%"
-        >
-          <SideBarMenu />
-        </FlexBetween>
-      ) : (
-        <Box
-          flexDirection="column"
-          backgroundColor={palette.background.alt}
-          width="100%"
-        >
+          <SidebarComp
+            Icon={Avatar}
+            sx={{ width: 24, height: 24 }}
+            path={`/account/${user.userName}`}
+          />
           <SideBarMenu />
         </Box>
       )}
-    </FlexBetween>
+    </Box>
   );
 };
 
