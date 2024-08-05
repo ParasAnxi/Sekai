@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 //** MUI */
 import {
@@ -12,31 +12,46 @@ import {
 import { Avatar } from "@mui/material";
 import { Settings } from "@mui/icons-material";
 //** REDUCERS */
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 //** COMPONENTS */
 import SideBar from "scenes/sidebar/sidebar/SideBar";
 import FlexBetween from "components/flex/FlexBetween";
 import NavBar from "scenes/sidebar/sidebar/NavBar";
+import { userPosts } from "features/post/postSlice";
+import UserProfilePosts from "../user profile posts/UserProfilePosts";
 
 const UserProfile = () => {
   const { palette } = useTheme();
   const Navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const isMobileScreens = useMediaQuery("(min-width:600px)");
   const isSmall = useMediaQuery("(min-width:500px)");
-
+  const isMedium = useMediaQuery("(min-width:800px)");
   const user = useSelector((state) => state.user.user);
   const followersLength = user.followers.length;
   const followingLength = user.following.length;
   // console.log(user.profilePicture);
+  const posts = useSelector((state) => state.post.userPosts);
+  useEffect(() => {
+    dispatch(userPosts(user.userName));
+  }, []);
   return (
     <>
-      {!isMobileScreens && <NavBar />}
-      <Box display="flex" gap="0.2rem" width="100%">
+      {/** NAVBAR */}
+      <Box position="fixed" top="0" zIndex="10" width="100%">
+        {!isMedium && <NavBar />}
+      </Box>
+      <Box
+        display="flex"
+        gap="0.2rem"
+        width="100%"
+        sx={{ marginTop: !isMedium ? "70px" : null }}
+      >
         {/** SIDE BAR */}
         <Box
-          display={!isMobileScreens ? "none" : "flex"}
+          display={!isMedium ? "none" : "flex"}
           height="100vh"
           maxWidth="300px"
           minWidth="80px"
@@ -45,7 +60,7 @@ const UserProfile = () => {
           position="sticky"
           top="0"
           sx={{
-            flexBasis: isNonMobileScreens ? "30%" : "18%",
+            flexBasis: isNonMobileScreens ? "30%" : "10%",
           }}
         >
           <SideBar />
@@ -69,9 +84,7 @@ const UserProfile = () => {
                 flexDirection: !isMobileScreens ? "column" : null,
               }}
             >
-              <Box
-                padding="1rem"
-              >
+              <Box padding="1rem">
                 <Avatar
                   src={`http://localhost:3001/assets/${user.profilePicture}`}
                   sx={{
@@ -83,11 +96,7 @@ const UserProfile = () => {
                 />
               </Box>
 
-              <Box
-                padding="1rem"
-                width="100%"
-                minWidth="200px"
-              >
+              <Box padding="1rem" width="100%" minWidth="200px">
                 <FlexBetween>
                   <Typography color={palette.primary.dark} fontSize="1rem">
                     {user.userName}
@@ -143,20 +152,35 @@ const UserProfile = () => {
                       component="pre"
                       display="block"
                       fontSize="1rem"
-                      // backgroundColor="red"
                       height="100px"
                       color={palette.primary.dark}
                     >
                       <pre>{user.bio}</pre>
                     </Typography>
                   </Box>
+                  {!isMedium && (
+                    <Button
+                      sx={{
+                        justifyContent: "center",
+                      }}
+                      fullWidth
+                      onClick={()=>Navigate("/create")}
+                    >
+                      Create New Post
+                    </Button>
+                  )}
                 </Box>
               </Box>
             </FlexBetween>
           </Box>
           <Box
+            display="flex"
+            justifyContent="center"
+            flexDirection="column"
+            height="auto"
+            width="70%"
           >
-            Posts
+            <UserProfilePosts posts={posts} />
           </Box>
         </Box>
       </Box>

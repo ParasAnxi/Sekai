@@ -7,7 +7,7 @@ import { Formik } from "formik";
 import * as yup from "yup";
 //** REDUCERS */
 import { useDispatch, useSelector } from "react-redux";
-import { changeProfilePic } from "features/user/userSlice";
+import {  changeProfilePic } from "features/user/userSlice";
 //** MUI */
 import {
   TextField,
@@ -21,7 +21,6 @@ import {
 } from "@mui/material";
 import FlexBetween from "components/flex/FlexBetween";
 //** COMPONENTS */
-import SuccessAndError from "components/status/Status";
 
 //** EDIT SCHEMA VALIDATION */
 const profilePicSchema = yup.object({
@@ -39,6 +38,9 @@ const EditProfilePic = () => {
   const isSmall = useMediaQuery("(min-width:500px)");
   // console.log(error);
   //** CONFIG */
+  const initialValues = {
+    picture: "",
+  };
   const handleFormSubmit = async (values, onSubmitProps) => {
     const oldPicturePath = user.profilePicture ? user.profilePicture : "";
     const uniquePicId = uuid();
@@ -61,23 +63,6 @@ const EditProfilePic = () => {
 
   return (
     <>
-      {error === "error" ? (
-        <SuccessAndError
-          type={"error"}
-          color={"red"}
-          message={"Profile Picture not updated!"}
-          time={5000}
-        />
-      ) : null}
-      {error === "noError" ? (
-        <SuccessAndError
-          type={"success"}
-          color={"green"}
-          message={"Profile Picture Updated!"}
-          time={2000}
-        />
-      ) : null}
-
       <Formik onSubmit={handleFormSubmit} initialValues={initialValues}>
         {({ values, handleSubmit, setFieldValue }) => (
           <form onSubmit={handleSubmit}>

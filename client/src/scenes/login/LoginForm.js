@@ -59,6 +59,8 @@ const LoginForm = () => {
           color={"red"}
           message={"Invalid Credentials!"}
           time={5000}
+          open={true}
+          onClose={setError}
         />
       ) : null}
       <Formik

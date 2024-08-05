@@ -56,13 +56,12 @@ export const changePassword = createAsyncThunk("auth/changepassword",async({id,t
     body:JSON.stringify({password: password})
   });
   const data = await response.json();
-  console.log(data)
+  // console.log(data)
   return data;
 });
 //** CHANGE PROFILE PIC */
 export const changeProfilePic = createAsyncThunk("/auth/profilepic",async(formData)=>{
   const userName = formData.get("userName");
-  console.log(userName)
   const response = await fetch(`${USER_API}/profilepic/${userName}`, {
     method: "POST",
     headers: {
@@ -73,7 +72,7 @@ export const changeProfilePic = createAsyncThunk("/auth/profilepic",async(formDa
     body: formData
   });
   const data = await response.json();
-  console.log(data)
+  // console.log(data)
   return data;
 });
 //** CHANGE INFO */
@@ -88,7 +87,7 @@ export const changeInfo = createAsyncThunk("/auth/chnageinfo",async(user)=>{
     body: JSON.stringify(user),
   });
   const data = await response.json();
-  console.log(data);
+  // console.log(data);
   return data;
 })
 //** REDUCERS */

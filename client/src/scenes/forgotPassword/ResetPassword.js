@@ -18,7 +18,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { VisibilityOff } from "@mui/icons-material";
 //** REDUCERS */
-import { changePassword } from "features/user/userSlice";
+import { changePassword, setError } from "features/user/userSlice";
 //** COMPONENTS */
 import SuccessAndError from "components/status/Status";
 
@@ -64,6 +64,8 @@ const ResetPassword = () => {
           color={"red"}
           message={"Link Expired! Password did'nt changed."}
           time={5000}
+          open={true}
+          onClose={setError}
         />
       ) : null}
       ;
@@ -73,6 +75,8 @@ const ResetPassword = () => {
           color={"green"}
           message={"Password changed Successully!"}
           time={1000}
+          open={true}
+          onClose={setError}
           navigate={"/"}
         />
       ) : null}

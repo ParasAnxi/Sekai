@@ -15,6 +15,8 @@ import Home from "scenes/home/Home";
 import UserProfile from "scenes/profile/user profile/UserProfile";
 import ResetPassword from "scenes/forgotPassword/ResetPassword";
 import EditProfile from "scenes/profile/edit profile/EditProfile";
+import CreatePost from "scenes/post/create post/CreatePost";
+import { setLogOutPost } from "features/post/postSlice";
 
 function App() {
   const mode = useSelector((state)=>state.user.theme);
@@ -29,6 +31,7 @@ function App() {
     setInterval(()=>{
       if(decodedToken.exp < (new Date().getTime())/1000){
         dispatch(setLogOut());
+        dispatch(setLogOutPost());
       }
     },(1000 * 60 * 1))
   }
@@ -53,6 +56,7 @@ function App() {
             />
             <Route path="/account/:userName" element={auth ? <UserProfile />: <Navigate to="/" />} />
             <Route path="/account/:userName/edit" element={auth ? <EditProfile />: <Navigate to="/" />} />
+            <Route path="/create" element={auth ? <CreatePost />: <Navigate to="/" />} />
           </Routes>
         </ThemeProvider>
       </Router>

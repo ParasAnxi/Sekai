@@ -74,7 +74,7 @@ const SideBar = () => {
           <SidebarComp Icon={MovieFilterOutlinedIcon} name={"Reels"} />
           <SidebarComp Icon={MessageIcon} name={"Messages"} />
           <SidebarComp Icon={FavoriteIcon} name={"Notifications"} />
-          <SidebarComp Icon={AddBoxOutlinedIcon} name={"Create"} />
+          <SidebarComp Icon={AddBoxOutlinedIcon} name={"Create"} path={"/create"} />
           <SidebarComp
             Icon={Avatar}
             name={"Profile"}

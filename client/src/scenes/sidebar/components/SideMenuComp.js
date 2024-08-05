@@ -7,6 +7,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { ArrowBack } from "@mui/icons-material";
 import { useTheme } from "@emotion/react";
 import { setLogOut, setTheme } from "features/user/userSlice";
+import { setLogOutPost } from "features/post/postSlice";
 import { DarkMode, LightMode } from "@mui/icons-material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import SwitchAccountIcon from "@mui/icons-material/SwitchAccount";
@@ -48,6 +49,7 @@ const SideMenuComp = ({ Icon, name }) => {
         break;
       case LogoutIcon:
         dispatch(setLogOut());
+        dispatch(setLogOutPost());
         Navigate("/");
         dispatch(setMoreSettingClose());
         break;

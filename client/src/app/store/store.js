@@ -14,6 +14,7 @@ import storage from "redux-persist/lib/storage";
 import formReducer from "../../features/form/formSlice.js";
 import userReducer from "../../features/user/userSlice.js";
 import moreSettingReducer from "../../features/moreSettings/moreSettingSlice.js";
+import postReducer from "../../features/post/postSlice.js";
 
 //** REDUCERS */
 //** USERS */
@@ -21,6 +22,12 @@ const userPersistConfig = {
   key: "user",
   storage: storage,
   whitelist:["theme","user","token"]
+};
+//** POSTS */
+const postPersistConfig = {
+  key: "post",
+  storage: storage,
+  whitelist:["userPosts"]
 };
 //** FORM */
 const formPersistConfig = {
@@ -39,6 +46,7 @@ const reducers = combineReducers({
   form: persistReducer(formPersistConfig,formReducer),
   user: persistReducer(userPersistConfig, userReducer),
   moreSetting: persistReducer(moreSettingPersistConfig, moreSettingReducer),
+  post: persistReducer(postPersistConfig, postReducer),
 });
 
 //** CONFIG */

@@ -1,22 +1,16 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 //** MUI */
-import { Alert, Snackbar } from '@mui/material';
-import { useTheme } from '@emotion/react';
+import { Alert, Snackbar, useTheme } from '@mui/material';
 //** REDUCERS */
 import { useDispatch, useSelector } from 'react-redux';
 import { setError } from 'features/user/userSlice';
 import { setFormType } from 'features/form/formSlice';
 
-const SuccessAndError = ({type,color,message,time,navigate,formType}) => {
+const SuccessAndError = ({type,color,message,time,navigate,formType,open,onClose}) => {
   const {palette} = useTheme();
   const dispatch = useDispatch();
-  //** ERROR HANDLING */
-  const error = useSelector((state)=>state.user.error);
-  let open = false;
-  if(error !== null){
-    open = true;
-  }
+
   //** NAVIGATIONS */
   const Navigate = useNavigate();
   const handleNavigate = ()=>{
@@ -36,7 +30,7 @@ const SuccessAndError = ({type,color,message,time,navigate,formType}) => {
         open={open}
         autoHideDuration={time}
         onClose={()=>{
-          dispatch(setError());
+          dispatch(onClose());
           handleNavigate();
           setForm();
         }}

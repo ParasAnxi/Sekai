@@ -6,7 +6,7 @@ import * as yup from "yup";
 //** MUI */
 import { TextField, useTheme, Box, Typography, Button } from "@mui/material";
 //** REDUCERS */
-import { changeInfo } from "features/user/userSlice";
+import { changeInfo, setError } from "features/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 //** COMPONENTS */
 import SuccessAndError from "components/status/Status";
@@ -26,23 +26,18 @@ const EditProfileForm = () => {
   const user = useSelector((state) => state.user.user);
   const { userName } = useParams();
   const error = useSelector((state) => state.user.error);
-  console.log(error)
   //** CONFIG */
   const initialValues = {
     nickName: user.nickName,
     bio: user.bio,
   };
-  const handleFormSubmit = async (values, onSubmitProps) => {
+  const handleFormSubmit = async (values) => {
     const data = {
       nickName: values.nickName,
       bio: values.bio,
       userName: userName,
     };
-    console.log(data)
     dispatch(changeInfo(data));
-    setTimeout(()=>{
-      Navigate(`/account/${userName}`);
-    },2000)
   };
   return (
     <>
@@ -52,6 +47,9 @@ const EditProfileForm = () => {
           color={"red"}
           message={"Profile not updated!"}
           time={5000}
+          open={true}
+          onClose={setError}
+          navigate={`/account/${userName}`}
         />
       ) : null}
       {error === "noError" ? (
@@ -60,6 +58,8 @@ const EditProfileForm = () => {
           color={"green"}
           message={"Profile Updated!"}
           time={1000}
+          open={true}
+          onClose={setError}
         />
       ) : null}
       <EditProfilePic />

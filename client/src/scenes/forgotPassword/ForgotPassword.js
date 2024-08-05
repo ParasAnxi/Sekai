@@ -1,23 +1,17 @@
-import React from 'react'
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 //** FROM */
 import { Formik } from "formik";
 import * as yup from "yup";
 //** MUI */
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  useTheme,
-} from "@mui/material";
-import FlexBetween from 'components/flex/FlexBetween';
-import { CircularProgress } from '@mui/material';
+import { Box, Button, TextField, Typography, useTheme } from "@mui/material";
+import FlexBetween from "components/flex/FlexBetween";
+import { CircularProgress } from "@mui/material";
 //** REDUCERS */
-import { setFormType } from 'features/form/formSlice';
-import { resetPasswordLink } from 'features/user/userSlice';
+import { setFormType } from "features/form/formSlice";
+import { resetPasswordLink, setError } from "features/user/userSlice";
 //** COMPONENTS */
-import SuccessAndError from 'components/status/Status';
+import SuccessAndError from "components/status/Status";
 //** FORGOT PASSWORD SCHEMA VALIDATION */
 const getEmail = async (checkEmail) => {
   const sendData = {
@@ -39,9 +33,9 @@ const forgotPasswordSchema = yup.object({
     .email("Invalid Email!")
     .required("Please enter your Email!")
     .test("unique-email", "Email does not Exist!", async (checkEmail) => {
-        const data = await getEmail(checkEmail);
-        return data;
-      })
+      const data = await getEmail(checkEmail);
+      return data;
+    }),
 });
 
 const initialValues = {
@@ -49,33 +43,39 @@ const initialValues = {
 };
 
 const ForgotPassword = () => {
-    const dispatch = useDispatch();
-    const { palette } = useTheme();
-    //** HANDLE FORM */
-    const error = useSelector((state) => state.user.error);
-    const handleFormSubmit = async (values) =>{
-      dispatch(resetPasswordLink(values));
-    };
-    const isLoading = useSelector((state)=>state.user.status);
+  const dispatch = useDispatch();
+  const { palette } = useTheme();
+  //** HANDLE FORM */
+  const error = useSelector((state) => state.user.error);
+  const handleFormSubmit = async (values) => {
+    dispatch(resetPasswordLink(values));
+  };
+  const isLoading = useSelector((state) => state.user.status);
   return (
     <>
-    {isLoading === 'loading' ? 
-      <Box sx={{ display: "flex",
-        widht:'100vw',
-        position:'absolute',
-        left:'47%',
-        top:"44%",
-        alignContent:'center',
-        zIndex:'10'
-      }}>
-        <CircularProgress />
-      </Box>: null} 
+      {isLoading === "loading" ? (
+        <Box
+          sx={{
+            display: "flex",
+            widht: "100vw",
+            position: "absolute",
+            left: "47%",
+            top: "44%",
+            alignContent: "center",
+            zIndex: "10",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : null}
       {error === "error" ? (
         <SuccessAndError
           type={"error"}
           color={"red"}
           message={"Email not Sent! Try again!"}
           time={5000}
+          open={true}
+          onClose={setError}
         />
       ) : null}
       {error === "noError" ? (
@@ -85,6 +85,8 @@ const ForgotPassword = () => {
           message={"Email Sent Successfully!"}
           time={1000}
           formType={"loginPage"}
+          open={true}
+          onClose={setError}
         />
       ) : null}
       <Formik
@@ -168,6 +170,6 @@ const ForgotPassword = () => {
       </Formik>
     </>
   );
-}
+};
 
-export default ForgotPassword
+export default ForgotPassword;
