@@ -83,7 +83,7 @@ const EditProfilePic = () => {
               >
                 <Box>
                   <Avatar
-                    src={`http://localhost:3001/assets/${user.profilePicture}`}
+                    src={`http://localhost:3001/assets/${user?.profilePicture}`}
                     sx={{
                       width: "70px",
                       height: "70px",

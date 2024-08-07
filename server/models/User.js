@@ -1,6 +1,6 @@
 //** IMPORTS */
-import mongoose from "mongoose";
-
+import mongoose, { SchemaType } from "mongoose";
+import { Schema } from "mongoose";
 /** USER SCHEMA */
 const userSchema = mongoose.Schema(
   {
@@ -38,20 +38,45 @@ const userSchema = mongoose.Schema(
       default: "",
     },
     following: {
-      type: Array,
+      type: [{ type: Schema.Types.ObjectId, ref: "User" }],
       default: [],
     },
     followers: {
-      type: Array,
+      type: [{ type: Schema.Types.ObjectId, ref: "User" }],
       default: [],
     },
     resetPasswordToken: {
       type: String,
       default: "",
     },
+    notifications: {
+      type: Array,
+      default: [],
+      ref: "Notification",
+    },
   },
   { timestamps: true }
 );
+//** FUNCTIONS */
+userSchema.methods.addFollower = function(userId) {
+  if (!this.followers.includes(userId)) {
+    this.followers.push(userId);
+  }
+};
+
+userSchema.methods.removeFollower = function(userId) {
+  this.followers = this.followers.filter(followerId => !followerId.equals(userId));
+};
+
+userSchema.methods.addFollowing = function(userId) {
+  if (!this.following.includes(userId)) {
+    this.following.push(userId);
+  }
+};
+
+userSchema.methods.removeFollowing = function(userId) {
+  this.following = this.following.filter(followingId => !followingId.equals(userId));
+};
 
 const User = mongoose.model("User", userSchema);
 export default User;

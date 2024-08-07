@@ -12,9 +12,9 @@ import {
   useMediaQuery,
   Typography,
   useTheme,
+  InputAdornment,
+  IconButton
 } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
-import InputAdornment from "@mui/material/InputAdornment";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { VisibilityOff } from "@mui/icons-material";
 //** REDUCERS */
@@ -68,7 +68,6 @@ const ResetPassword = () => {
           onClose={setError}
         />
       ) : null}
-      ;
       {error === "noError" ? (
         <SuccessAndError
           type={"success"}
@@ -80,7 +79,6 @@ const ResetPassword = () => {
           navigate={"/"}
         />
       ) : null}
-      ;
       <Box
         display="flex"
         justifyContent="center"

@@ -17,7 +17,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { VisibilityOff } from "@mui/icons-material";
 //** REDUCERS */
-import { userRegister } from "features/user/userSlice";
+import { setError, userRegister } from "features/user/userSlice";
 import SuccessAndError from "components/status/Status";
 //** FORM VALUES */
 const initialValues = {
@@ -35,6 +35,7 @@ const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const error = useSelector((state)=>state.user.error);
+  console.log(error)
 //** FORM DATA */
   const handleFormSubmit = async (values) => {
     dispatch(userRegister(values));
@@ -106,6 +107,8 @@ const RegisterForm = () => {
           color={"red"}
           message={"User Not Registered!"}
           time={5000}
+          open={true}
+          onClose={setError}
         />
       ) : null}
       {error === "noError" ? (
@@ -114,6 +117,8 @@ const RegisterForm = () => {
           color={"green"}
           message={"User Registered Successfully!"}
           time={1000}
+          open={true}
+          onClose={setError}
           formType={"loginPage"}
         />
       ) : null}
@@ -197,7 +202,11 @@ const RegisterForm = () => {
                           setShowConfirmPassword(!showConfirmPassword)
                         }
                       >
-                        {showConfirmPassword ? <VisibilityIcon /> : <VisibilityOff />}
+                        {showConfirmPassword ? (
+                          <VisibilityIcon />
+                        ) : (
+                          <VisibilityOff />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   ),

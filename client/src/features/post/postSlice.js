@@ -7,6 +7,7 @@ const initialState = {
     status: "idle",
     error: null,
     userPosts:[],
+    otherUserPosts:[]
 };
 
 //** CREATE POST */
@@ -30,7 +31,16 @@ export const userPosts = createAsyncThunk("post/userPosts",async(userName)=>{
   const data = await response.json();
   // console.log(data);
   return data;
-})
+});
+//** OTHER USER POSTS */
+export const otherUserPosts = createAsyncThunk("post/otherUserPosts",async(userName)=>{
+  const response = await fetch(`${POST_API}/${userName}/userposts`,{
+    method: "GET",
+  });
+  const data = await response.json();
+  // console.log(data);
+  return data;
+});
 //** REDUCERS */
 export const postSlice = createSlice({
   name: "post",
@@ -58,6 +68,13 @@ export const postSlice = createSlice({
       .addCase(userPosts.fulfilled,(state,action)=>{
         state.status = "idle";
         state.userPosts = action.payload.posts;
+      })
+      .addCase(otherUserPosts.pending,(state)=>{
+        state.status = "idle";
+      })
+      .addCase(otherUserPosts.fulfilled,(state,action)=>{
+        state.status = "idle";
+        state.otherUserPosts = action.payload.posts;
       })
     },
 });

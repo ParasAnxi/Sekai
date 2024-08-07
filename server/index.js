@@ -17,7 +17,7 @@ import { connectDB } from "./controllers/connectDB.js";
 import authRoutes from "./routes/auth.js";
 import existRoutes from "./routes/exist.js";
 import postRoutes from "./routes/post.js";
-import { upload } from "./controllers/fileStorage.js";
+import userRoutes from "./routes/user.js";
 
 //** FILES CONFIG */
 const __filename = fileURLToPath(import.meta.url);
@@ -46,6 +46,7 @@ app.use(errorLog);
 app.use("/auth",authRoutes);
 app.use("/find",existRoutes);
 app.use("/post",postRoutes);
+app.use("/user",userRoutes);
 
 //** SERVER */
 const PORT = process.env.PORT;

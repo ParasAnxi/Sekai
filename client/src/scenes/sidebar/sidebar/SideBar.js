@@ -69,17 +69,25 @@ const SideBar = () => {
       {isNonMobileScreens ? (
         <Box width="100%">
           <SidebarComp Icon={HomeIcon} name={"Home"} path={"/home"} />
-          <SidebarComp Icon={SearchIcon} name={"Search"} />
+          <SidebarComp Icon={SearchIcon} name={"Search"} path={"/search"} />
           <SidebarComp Icon={ExploreOutlinedIcon} name={"Explore"} />
           <SidebarComp Icon={MovieFilterOutlinedIcon} name={"Reels"} />
           <SidebarComp Icon={MessageIcon} name={"Messages"} />
-          <SidebarComp Icon={FavoriteIcon} name={"Notifications"} />
-          <SidebarComp Icon={AddBoxOutlinedIcon} name={"Create"} path={"/create"} />
+          <SidebarComp
+            Icon={FavoriteIcon}
+            name={"Notifications"}
+            path={"/notification"}
+          />
+          <SidebarComp
+            Icon={AddBoxOutlinedIcon}
+            name={"Create"}
+            path={"/create"}
+          />
           <SidebarComp
             Icon={Avatar}
             name={"Profile"}
             sx={{ width: 24, height: 24 }}
-            path={`/account/${user.userName}`}
+            path={`/account/${user?.userName}`}
           />
 
           <SideBarMenu />
@@ -87,16 +95,16 @@ const SideBar = () => {
       ) : (
         <Box width="100%">
           <SidebarComp Icon={HomeIcon} path={"/home"} />
-          <SidebarComp Icon={SearchIcon} />
+          <SidebarComp Icon={SearchIcon} path={"/search"} />
           <SidebarComp Icon={ExploreOutlinedIcon} />
           <SidebarComp Icon={MovieFilterOutlinedIcon} />
           <SidebarComp Icon={MessageIcon} />
-          <SidebarComp Icon={FavoriteIcon} />
-          <SidebarComp Icon={AddBoxOutlinedIcon} />
+          <SidebarComp Icon={FavoriteIcon} path={"/notification"} />
+          <SidebarComp Icon={AddBoxOutlinedIcon} path={"/create"} />
           <SidebarComp
             Icon={Avatar}
             sx={{ width: 24, height: 24 }}
-            path={`/account/${user.userName}`}
+            path={`/account/${user?.userName}`}
           />
           <SideBarMenu />
         </Box>

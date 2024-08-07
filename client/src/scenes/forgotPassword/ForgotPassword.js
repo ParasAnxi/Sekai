@@ -101,8 +101,6 @@ const ForgotPassword = () => {
           handleBlur,
           handleChange,
           handleSubmit,
-          setFieldValue,
-          resetForm,
         }) => (
           <form onSubmit={handleSubmit}>
             <Box display="grid" gap="25px">

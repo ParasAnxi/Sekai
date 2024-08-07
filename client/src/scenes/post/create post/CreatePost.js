@@ -122,11 +122,7 @@ const CreatePost = () => {
             create post
           </Typography>
         </Box>
-        <Box
-          display="flex"
-          alignItems="center"
-          flexDirection="column"
-        >
+        <Box display="flex" alignItems="center" flexDirection="column">
           <Box
             display="flex"
             alignItems="center"
@@ -134,12 +130,16 @@ const CreatePost = () => {
             padding="1rem"
           >
             <Avatar
-              src={`http://localhost:3001/assets/${user.profilePicture}`}
+              src={`http://localhost:3001/assets/${user?.profilePicture}`}
+              onClick={() => Navigate(`/account/${user?.userName}`)}
               sx={{
                 width: "70px",
                 height: "70px",
                 minWidth: "20px",
                 minHeight: "20px",
+                "&:hover": {
+                  cursor: "pointer",
+                },
               }}
             />
             <Typography
@@ -147,6 +147,13 @@ const CreatePost = () => {
               padding="0.5rem"
               fontWeight="bold"
               color={palette.primary.dark}
+              onClick={() => Navigate(`/account/${user?.userName}`)}
+              sx={{
+                "&:hover": {
+                  cursor: "pointer",
+                  color:palette.primary.main
+                },
+              }}
             >
               {user?.userName}
             </Typography>
@@ -257,7 +264,7 @@ const CreatePost = () => {
                       flexDirection="column"
                       gap="25px"
                       width="100%"
-                      alignItems={!isMobile ?"center" : undefined}
+                      alignItems={!isMobile ? "center" : undefined}
                       marginBottom="3rem"
                     >
                       <Typography

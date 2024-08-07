@@ -12,12 +12,6 @@ import { useDispatch, useSelector } from "react-redux";
 import SuccessAndError from "components/status/Status";
 import EditProfilePic from "./EditProfilePic";
 
-//** EDIT SCHEMA VALIDATION */
-const editSchema = yup.object({
-  nickName: yup.string().max(10),
-  bio: yup.string().max(150),
-});
-
 const EditProfileForm = () => {
   const { palette } = useTheme();
   const dispatch = useDispatch();
@@ -49,7 +43,6 @@ const EditProfileForm = () => {
           time={5000}
           open={true}
           onClose={setError}
-          navigate={`/account/${userName}`}
         />
       ) : null}
       {error === "noError" ? (
@@ -60,6 +53,7 @@ const EditProfileForm = () => {
           time={1000}
           open={true}
           onClose={setError}
+          navigate={`/account/${userName}`}
         />
       ) : null}
       <EditProfilePic />

@@ -58,7 +58,7 @@ const SidebarComp = ({ Icon, name, path }) => {
 
             {Icon === MessageIcon || Icon === FavoriteIcon ? null : (
               <Icon
-                src={Icon === Avatar && user ? `http://localhost:3001/assets/${user.profilePicture}` : null}
+                src={Icon === Avatar && user ? `http://localhost:3001/assets/${user?.profilePicture}` : null}
                 sx={{
                   width: Icon === Avatar ? 25 : null,
                   height: Icon === Avatar ? 25 : null,

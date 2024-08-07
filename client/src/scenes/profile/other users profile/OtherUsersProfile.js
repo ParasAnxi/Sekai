@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 //** MUI */
 import {
   Box,
@@ -11,17 +11,24 @@ import {
 } from "@mui/material";
 import { Avatar } from "@mui/material";
 import { Settings } from "@mui/icons-material";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 //** REDUCERS */
 import { useDispatch, useSelector } from "react-redux";
 //** COMPONENTS */
 import SideBar from "scenes/sidebar/sidebar/SideBar";
 import FlexBetween from "components/flex/FlexBetween";
 import NavBar from "scenes/sidebar/sidebar/NavBar";
-import { userPosts } from "features/post/postSlice";
+import { otherUserPosts, userPosts } from "features/post/postSlice";
 import UserProfilePosts from "../user profile posts/UserProfilePosts";
+import UserProfile from "../user profile/UserProfile";
+import {
+  followUser,
+  getUserProfile,
+  unFollowUser,
+} from "features/users/usersSlice";
 import { refreshUser } from "features/user/userSlice";
 
-const UserProfile = () => {
+const OtherUsersProfile = () => {
   const { palette } = useTheme();
   const Navigate = useNavigate();
   const dispatch = useDispatch();
@@ -30,15 +37,42 @@ const UserProfile = () => {
   const isMobileScreens = useMediaQuery("(min-width:600px)");
   const isSmall = useMediaQuery("(min-width:500px)");
   const isMedium = useMediaQuery("(min-width:800px)");
-  const user = useSelector((state) => state.user.user);
-  const followersLength = user.followers.length;
-  const followingLength = user.following.length;
-  console.log(user);
-  const posts = useSelector((state) => state.post.userPosts);
-  console.log(posts);
+
+  const { userName } = useParams();
   useEffect(() => {
-    dispatch(refreshUser(user.userName));
-    dispatch(userPosts(user.userName));
+    dispatch(getUserProfile(userName));
+  }, []);
+  const user = useSelector((state) => state.users.user);
+  // console.log(user);
+  const followersLength = user?.followers.length;
+  const followingLength = user?.following.length;
+  // console.log(user.profilePicture);
+
+  const posts = useSelector((state) => state.post.otherUserPosts);
+  const loggedInUser = useSelector((state) => state.user.user);
+  const includesInFollowing = user?.followers.includes(loggedInUser?._id);
+  // console.log(loggedInUser);
+
+  const handleFollow = async () => {
+    const followData = {
+      toFollowUserName: userName,
+      userName: loggedInUser?.userName,
+    };
+    const unFollowData = {
+      toUnfollowUserName: userName,
+      userName: loggedInUser?.userName,
+    };
+    if (user?.followers.includes(loggedInUser?._id)) {
+      dispatch(unFollowUser(unFollowData));
+    } else {
+      dispatch(followUser(followData));
+    }
+  };
+  
+  useEffect(() => {
+    if (loggedInUser) {
+      dispatch(refreshUser(loggedInUser.userName));
+    }
   }, []);
   return (
     <>
@@ -80,7 +114,7 @@ const UserProfile = () => {
         >
           <Box
             padding={!isSmall ? "1rem" : "0.5rem"}
-            margin={!isSmall ? "1rem" : "0.5rem"}
+            margin={!isSmall ? "1rem" : "0"}
           >
             <FlexBetween
               gap={!isSmall ? "1rem" : "0.5rem"}
@@ -112,12 +146,23 @@ const UserProfile = () => {
                       color: palette.primary.dark,
                       "&:hover": { color: palette.primary.main },
                     }}
-                    onClick={() => Navigate(`/account/${user?.userName}/edit`)}
+                    onClick={() => handleFollow()}
                   >
-                    Edit Profile
+                    {includesInFollowing ? "Following" : "Follow"}
+                  </Button>
+                  <Button
+                    sx={{
+                      textTransform: "none",
+                      fontSize: "15px",
+                      color: palette.primary.dark,
+                      "&:hover": { color: palette.primary.main },
+                    }}
+                    // onClick={() => Navigate(`/account/${user?.userName}/edit`)}
+                  >
+                    Message
                   </Button>
                   <IconButton>
-                    <Settings
+                    <MoreHorizIcon
                       sx={{ color: palette.primary.dark, fontSize: "25px" }}
                     />
                   </IconButton>
@@ -125,7 +170,7 @@ const UserProfile = () => {
                 <Box>
                   <Box display="flex" alignItems="center" gap="2rem">
                     <Typography fontSize="1rem" color={palette.primary.dark}>
-                      {`${posts.length} Posts`}
+                      0 posts
                     </Typography>
                     <Button
                       sx={{
@@ -148,31 +193,21 @@ const UserProfile = () => {
                       {followingLength} Following
                     </Button>
                   </Box>
-                  <Box marginTop="1rem">
-                    <Typography fontSize="1rem" color={palette.primary.dark}>
-                      {user?.nickName}
-                    </Typography>
-                    <Typography
-                      component="pre"
-                      display="block"
-                      fontSize="1rem"
-                      color={palette.primary.dark}
-                    >
-                      <pre>{user?.bio}</pre>
-                    </Typography>
-                  </Box>
-                  {!isSmall && (
-                    <Button
-                      sx={{
-                        fontSize: "1rem",
-                        justifyContent: "center",
-                        marginTop: "1rem",
-                      }}
-                      fullWidth
-                      onClick={() => Navigate("/create")}
-                    >
-                      Create New Post
-                    </Button>
+                  {user?.nickName && user.bio && (
+                    <Box marginTop="1rem">
+                      <Typography fontSize="1rem" color={palette.primary.dark}>
+                        {user?.nickName}
+                      </Typography>
+                      <Typography
+                        component="pre"
+                        display="block"
+                        fontSize="1rem"
+                        height="100px"
+                        color={palette.primary.dark}
+                      >
+                        <pre>{user?.bio}</pre>
+                      </Typography>
+                    </Box>
                   )}
                 </Box>
               </Box>
@@ -182,7 +217,7 @@ const UserProfile = () => {
             display="flex"
             justifyContent="center"
             flexDirection="column"
-            height="auto"
+            // height="60%"
             width="70%"
           >
             <UserProfilePosts posts={posts} />
@@ -193,4 +228,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default OtherUsersProfile;

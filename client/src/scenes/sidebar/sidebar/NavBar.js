@@ -34,7 +34,7 @@ const NavBar = () => {
     >
       <Box width="100%" display="flex">
         <SidebarComp Icon={HomeIcon} path={"/home"} />
-        <SidebarComp Icon={SearchIcon} />
+        <SidebarComp Icon={SearchIcon} path={"/search"} />
         {small && <SidebarComp Icon={AddBoxOutlinedIcon} />}
         {extraSmall && <SidebarComp Icon={ExploreOutlinedIcon} />}
         <SidebarComp Icon={MovieFilterOutlinedIcon} />
@@ -42,7 +42,7 @@ const NavBar = () => {
         <SidebarComp
           Icon={Avatar}
           sx={{ width: 24, height: 24 }}
-          path={`/account/${user.userName}`}
+          path={`/account/${user?.userName}`}
         />
       </Box>
     </FlexBetween>

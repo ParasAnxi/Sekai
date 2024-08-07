@@ -1,14 +1,15 @@
 //** IMPORTS */
 import express from "express";
-import { changeInfo, changePassword, changeProfilePic, loginUser, registerUser, sendLink } from "../controllers/auth.js";
+import { changeInfo, changePassword, changeProfilePic, loginUser, refreshUser, registerUser, sendLink } from "../controllers/auth.js";
 import { fileStorage, upload } from "../controllers/fileStorage.js";
 //** CONFIG */
 const router = express.Router();
 
-//** LOGIN */
-router.post("/register",registerUser);
 //** REGISTER */
+router.post("/register",registerUser);
+//** LOGIN */
 router.post("/login",loginUser);
+router.post("/refreshuser",refreshUser);
 //** EMAIL AND PASSWORD */
 router.post("/resetpasswordlink",sendLink);
 router.post("/changepassword/:id/:token",changePassword);
