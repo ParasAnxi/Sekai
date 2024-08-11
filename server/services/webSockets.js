@@ -1,5 +1,6 @@
 //** IMPORTS */
 import { Server } from "socket.io";
+import Message from "../models/Message.js";
 
 //** CONFIG */
 const onlineUsers = new Map();
@@ -14,26 +15,46 @@ export const webSockets = (server) => {
   io.on("connection", (socket) => {
     // console.log("user connceted")
     socket.on("addOnlineUsers", (userName) => {
-      onlineUsers.set(userName, socket.id);
-      onlineUsers.forEach((value, key) => {
-        console.log("this is good", key, value);
-      });
+      if (onlineUsers.has(userName)) {
+        onlineUsers.get(userName).push(socket.id);
+      } else {
+        onlineUsers.set(userName, [socket.id]);
+      }
     });
     //** SEND MESSAGE */
     socket.on("sendMessage", async (data) => {
-      const receiverOnline = onlineUsers.get(data.receiver);
-      if (receiverOnline) {
-        socket.to(receiverOnline).emit("receiveMessage", data);
+      const receiverSockets = onlineUsers.get(data.receiver);
+      // console.log(data);
+
+      const newMessage = new Message({
+        participants: [data.sender, data.receiver],
+        sender: data.sender,
+        receiver: data.receiver,
+        message: data.message,
+        sentAt: data.time,
+        messageType: "text",
+        seen: false,
+      });
+      await newMessage.save();
+
+      if (receiverSockets) {
+        receiverSockets.forEach((socketId) => {
+          socket.to(socketId).emit("receiveMessage", data);
+        });
+      } else {
+        console.log("Receiver is offline");
       }
     });
     //** DISCONNECT */
     socket.on("disconnect", () => {
-      onlineUsers.forEach((value, key) => {
-        if (value === socket.id) {
-          onlineUsers.delete(key);
-          // console.log(`${key} disconnected`);
+      for (const [userName, sockets] of onlineUsers.entries()) {
+        const filteredSockets = sockets.filter((id) => id !== socket.id);
+        if (filteredSockets.length > 0) {
+          onlineUsers.set(userName, filteredSockets);
+        } else {
+          onlineUsers.delete(userName);
         }
-      });
+      }
     });
   });
 };

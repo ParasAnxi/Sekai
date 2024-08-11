@@ -42,11 +42,11 @@ const Messages = () => {
   const scrollRef = useRef();
   const containerRef = useRef(null);
   //** CONTAINER SCROLL */
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
-    }
-  }, [user, location]);
+  // useEffect(() => {
+  //   if (containerRef.current) {
+  //     containerRef.current.scrollTop = containerRef.current.scrollHeight;
+  //   }
+  // }, [user, location]);
   //** MESSAGE SCROLL */
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -54,34 +54,36 @@ const Messages = () => {
 
   //** SOCKETS FOR MESSAGES */
   useEffect(() => {
-    if (user) {
-      socket.emit("addOnlineUsers", loggedInUser.userName);
-    }
-  }, [loggedInUser]);
-  //** MESSAGE DATA SCHEMA */
-  const data = {
-    sender: loggedInUser?.userName,
-    receiver: user?.userName,
-    message: sendMessage,
-    time: Date.now(),
-  };
+    const socket = io("http://localhost:3001");
+
+    socket.emit("addOnlineUsers", loggedInUser.userName);
+
+    socket.on("receiveMessage", (data) => {
+      if (
+        data.sender === user.userName &&
+        data.receiver === loggedInUser.userName
+      ) {
+        setArrivalMessage(data);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket, loggedInUser, user]);
+
   //** FETCHING DATA */
   useEffect(() => {
+    const data = {
+      sender: loggedInUser?.userName,
+      receiver: user?.userName,
+      message: sendMessage,
+      time: Date.now(),
+    };
     dispatch(getChats(data));
-    dispatch(getUserProfile(user?.userName));
+    dispatch(getUserProfile(user.userName));
   }, []);
-  useEffect(() => {
-    if (socket) {
-      socket.on("receiveMessage", (data) => {
-        if (
-          data.sender === user.userName &&
-          data.receiver === loggedInUser.userName
-        ) {
-          setArrivalMessage(data);
-        }
-      });
-    }
-  }, [user, loggedInUser]);
+
 
   useEffect(() => {
     setMessages(chats);
@@ -103,8 +105,19 @@ const Messages = () => {
   //** SEND MESSAGE */
   const handleMessage = (e) => {
     e.preventDefault();
-    dispatch(sendUserMessage(data));
-    socket.emit("sendMessage", data);
+    const data = {
+      sender: loggedInUser?.userName,
+      receiver: user?.userName,
+      message: sendMessage,
+      time: Date.now(),
+    };
+    e.preventDefault();
+    // dispatch(sendUserMessage(data));
+    socket.emit("sendMessage", data, (response) => {
+      if (response.status === "ok") {
+        setMessages((prev) => [...prev, data]);
+      }
+    });
     setMessages((prev) => [...prev, data]);
     setSendMessage("");
   };
@@ -141,7 +154,7 @@ const Messages = () => {
   return (
     <>
       <Box
-        ref={containerRef}
+        // ref={containerRef}
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -187,7 +200,7 @@ const Messages = () => {
               color: palette.primary.dark,
               "&:hover": { color: palette.primary.main },
             }}
-            onClick={()=>Navigate(`/${user.userName}`)}
+            onClick={() => Navigate(`/${user.userName}`)}
           >
             View Profile
           </Button>
