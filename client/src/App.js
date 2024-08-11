@@ -5,7 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { jwtDecode } from "jwt-decode";
 //** MUI */
 import { ThemeProvider, CssBaseline } from "@mui/material";
@@ -13,7 +13,7 @@ import { createTheme } from "@mui/material/styles";
 import { themeSettings } from "theme/theme";
 //** REDUX */
 import { useDispatch, useSelector } from "react-redux";
-import { setLogOut } from "features/user/userSlice";
+import { setLogOut, setNotifications } from "features/user/userSlice";
 import { setLogOutPost } from "features/post/postSlice";
 //** COMPONENTS */
 import Auth from "./scenes/auth/Auth";
@@ -25,12 +25,14 @@ import CreatePost from "scenes/post/create post/CreatePost";
 import SearchUser from "scenes/search/search user/SearchUser";
 import OtherUsersProfile from "scenes/profile/other users profile/OtherUsersProfile";
 import Notification from "scenes/notification/Notification";
+import Message from "scenes/message/Message";
 
 function App() {
   const mode = useSelector((state) => state.user.theme);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
   const dispatch = useDispatch();
   //** REDUCER CONFIG */
+  const user = useSelector((state)=>state.user.user);
   const token = useSelector((state) => state.user.token);
   const auth = Boolean(useSelector((state) => state.user.token));
   // const navigate = useNavigate();
@@ -85,6 +87,10 @@ function App() {
             <Route
               path="/notification"
               element={auth ? <Notification /> : <Navigate to="/" />}
+            />
+            <Route
+              path="/message/*"
+              element={auth ? <Message /> : <Navigate to="/" />}
             />
           </Routes>
         </ThemeProvider>

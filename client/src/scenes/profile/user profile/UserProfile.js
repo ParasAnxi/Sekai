@@ -13,29 +13,33 @@ import { Avatar } from "@mui/material";
 import { Settings } from "@mui/icons-material";
 //** REDUCERS */
 import { useDispatch, useSelector } from "react-redux";
+import { refreshUser } from "features/user/userSlice";
+import { userPosts } from "features/post/postSlice";
 //** COMPONENTS */
 import SideBar from "scenes/sidebar/sidebar/SideBar";
 import FlexBetween from "components/flex/FlexBetween";
 import NavBar from "scenes/sidebar/sidebar/NavBar";
-import { userPosts } from "features/post/postSlice";
 import UserProfilePosts from "../user profile posts/UserProfilePosts";
-import { refreshUser } from "features/user/userSlice";
 
 const UserProfile = () => {
   const { palette } = useTheme();
   const Navigate = useNavigate();
   const dispatch = useDispatch();
-
+  
+  //** MEDIA QUERY */
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const isMobileScreens = useMediaQuery("(min-width:600px)");
   const isSmall = useMediaQuery("(min-width:500px)");
   const isMedium = useMediaQuery("(min-width:800px)");
+  const isMobileHeight = useMediaQuery("(min-height:640px)");
+
+  //** USER */
   const user = useSelector((state) => state.user.user);
   const followersLength = user.followers.length;
   const followingLength = user.following.length;
-  console.log(user);
+  // console.log(user);
   const posts = useSelector((state) => state.post.userPosts);
-  console.log(posts);
+  // console.log(posts);
   useEffect(() => {
     dispatch(refreshUser(user.userName));
     dispatch(userPosts(user.userName));
@@ -44,17 +48,17 @@ const UserProfile = () => {
     <>
       {/** NAVBAR */}
       <Box position="fixed" top="0" zIndex="10" width="100%">
-        {!isMedium && <NavBar />}
+        {(!isMedium || !isMobileHeight) && <NavBar />}
       </Box>
       <Box
         display="flex"
         gap="0.2rem"
         width="100%"
-        sx={{ marginTop: !isMedium ? "70px" : null }}
+        sx={{ marginTop: (!isMedium || !isMobileHeight) ? "70px" : null }}
       >
         {/** SIDE BAR */}
         <Box
-          display={!isMedium ? "none" : "flex"}
+          display={!isMedium || !isMobileHeight ? "none" : "flex"}
           height="100vh"
           maxWidth="300px"
           minWidth="80px"
@@ -75,7 +79,7 @@ const UserProfile = () => {
           flexBasis="80"
           backgroundColor={palette.background.alt}
           width="100%"
-          height="100vh"
+          height="auto"
           flexDirection="column"
         >
           <Box

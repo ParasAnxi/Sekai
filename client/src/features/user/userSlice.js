@@ -8,7 +8,8 @@ const initialState = {
   user: null,
   token: null,
   status: 'idle',
-  error: null
+  error: null,
+  notifications:0,
 };
 //** LOGIN */
 export const userLogin = createAsyncThunk('auth/login',async(data)=>{
@@ -101,7 +102,6 @@ export const refreshUser = createAsyncThunk("/user/finduser",async(userName)=>{
     body: JSON.stringify({userName}),
   });
   const data = await response.json();
-  // console.log("this is the data you get",data.user);
   return data;
 });
 
@@ -119,6 +119,9 @@ export const userSlice = createSlice({
       },
       setError:(state)=>{
         state.error = null;
+      },
+      setNotifications:(state,action)=>{
+        state.notifications = action.payload;
       }
   },
   extraReducers:(builder)=>{
@@ -179,5 +182,5 @@ export const userSlice = createSlice({
   }
 });
 
-export const { setTheme, setLogOut, setError } = userSlice.actions;
+export const { setTheme, setLogOut, setError, setNotifications } = userSlice.actions;
 export default userSlice.reducer;

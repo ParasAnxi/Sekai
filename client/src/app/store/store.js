@@ -16,18 +16,19 @@ import userReducer from "../../features/user/userSlice.js";
 import usersReducer from "../../features/users/usersSlice.js";
 import moreSettingReducer from "../../features/moreSettings/moreSettingSlice.js";
 import postReducer from "../../features/post/postSlice.js";
+import messageReducer from "../../features/message/messageSlice.js";
 
 //** REDUCERS */
 //** USERS */
 const userPersistConfig = {
   key: "user",
   storage: storage,
-  whitelist:["theme","user","token"]
+  whitelist:["theme","user","token","notifications"]
 };
 const usersPersistConfig = {
   key: "users",
   storage: storage,
-  whitelist:[]
+  whitelist:["user"]
 };
 //** POSTS */
 const postPersistConfig = {
@@ -47,11 +48,18 @@ const moreSettingPersistConfig = {
   storage: storage,
   whitelist:[]
 };
+//** MESSAGE */
+const messagePersistConfig = {
+  key: "message",
+  storage: storage,
+  whitelist:["users"]
+};
 //** COMBINE REDUCERS */
 const reducers = combineReducers({
   form: persistReducer(formPersistConfig,formReducer),
   user: persistReducer(userPersistConfig, userReducer),
   users: persistReducer(usersPersistConfig, usersReducer),
+  message: persistReducer(messagePersistConfig, messageReducer),
   moreSetting: persistReducer(moreSettingPersistConfig, moreSettingReducer),
   post: persistReducer(postPersistConfig, postReducer),
 });

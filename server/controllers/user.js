@@ -8,7 +8,7 @@ export const searchUser = async (req, res) => {
     const { userName } = req.body;
     if (userName !== "") {
       const users = await User.find({
-        userName: { $regex: `^${userName}`, $options: "i" },
+        userName: { $regex: `^${userName}`},
       });
       res.status(200).json({ users: users });
     } else if (userName === "") {
@@ -56,7 +56,10 @@ export const followUser = async (req, res) => {
         userId: user._id,
         otherUserId: toFollowUser._id,
         typeOf: "follow",
-        title: " started following you.",
+        title: `${user.userName} started following you.`,
+        userUserName:user.userName,
+        userProfilePicture: user.profilePicture,
+        expires_at: null
       });
       toFollowUser.notifications.push(notification);
 

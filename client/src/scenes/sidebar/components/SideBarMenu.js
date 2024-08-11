@@ -20,7 +20,7 @@ import SideBarMode from "./SideBarMode";
 import { useDispatch, useSelector } from "react-redux";
 const SideBarMenu = () => {
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
-  const isMobileScreens = useMediaQuery("(min-height: 643px)");
+  const isMobileScreens = useMediaQuery("(min-height: 645px)");
   const { palette } = useTheme();
   const dispatch = useDispatch();
 

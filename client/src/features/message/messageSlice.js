@@ -1,0 +1,89 @@
+//** IMPORTS */
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+//** API */
+const MESSAGE_API = "http://localhost:3001/message";
+//** CONFIG */
+const initialState = {
+  users: [],
+  status: "idle",
+  error: null,
+  chats: [],
+};
+//** GET MESSAGED USERS */
+export const messagedUser = createAsyncThunk(
+  "/message/getmessagedpeople",
+  async (userName) => {
+    const response = await fetch(`${MESSAGE_API}/getmessagedpeople`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ userName }),
+    });
+    const data = await response.json();
+    // console.log(data);
+    return data;
+  }
+);
+//** SEND MESSAGE */
+export const sendUserMessage = createAsyncThunk(
+  "/message/sendmessage",
+  async (messageData) => {
+    const response = await fetch(`${MESSAGE_API}/sendmessage`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(messageData),
+    });
+    const data = await response.json();
+    console.log(data);
+    return data;
+  }
+);
+//** MESSAGES */
+export const getChats = createAsyncThunk(
+  "/message/getchats",
+  async (userData) => {
+    const response = await fetch(`${MESSAGE_API}/getchats`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+    const data = await response.json();
+    // console.log(data);
+    return data;
+  }
+);
+//** REDUCERS */
+export const messageSlice = createSlice({
+  name: "message",
+  initialState,
+  reducers: {
+    onMessageLogOut: (state) => {
+      state.users = [];
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(messagedUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(messagedUser.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.users = action.payload.users;
+      })
+      .addCase(getChats.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getChats.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.chats = action.payload.messages;
+      });
+  },
+});
+
+export const { onMessageLogOut } = messageSlice.actions;
+export default messageSlice.reducer;

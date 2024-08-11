@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 //** MUI */
 import {
@@ -14,45 +14,50 @@ import { Settings } from "@mui/icons-material";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 //** REDUCERS */
 import { useDispatch, useSelector } from "react-redux";
-//** COMPONENTS */
-import SideBar from "scenes/sidebar/sidebar/SideBar";
-import FlexBetween from "components/flex/FlexBetween";
-import NavBar from "scenes/sidebar/sidebar/NavBar";
-import { otherUserPosts, userPosts } from "features/post/postSlice";
-import UserProfilePosts from "../user profile posts/UserProfilePosts";
-import UserProfile from "../user profile/UserProfile";
 import {
   followUser,
   getUserProfile,
   unFollowUser,
 } from "features/users/usersSlice";
 import { refreshUser } from "features/user/userSlice";
+//** COMPONENTS */
+import SideBar from "scenes/sidebar/sidebar/SideBar";
+import FlexBetween from "components/flex/FlexBetween";
+import NavBar from "scenes/sidebar/sidebar/NavBar";
+import UserProfilePosts from "../user profile posts/UserProfilePosts";
+import { otherUserPosts } from "features/post/postSlice";
 
 const OtherUsersProfile = () => {
   const { palette } = useTheme();
   const Navigate = useNavigate();
   const dispatch = useDispatch();
 
+  //** MEDIA QUERY */
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const isMobileScreens = useMediaQuery("(min-width:600px)");
   const isSmall = useMediaQuery("(min-width:500px)");
   const isMedium = useMediaQuery("(min-width:800px)");
+  const isMobileHeight = useMediaQuery("(min-height:640px)");
 
   const { userName } = useParams();
   useEffect(() => {
     dispatch(getUserProfile(userName));
+    dispatch(otherUserPosts(userName));
   }, []);
+  //** USER */
   const user = useSelector((state) => state.users.user);
   // console.log(user);
-  const followersLength = user?.followers.length;
-  const followingLength = user?.following.length;
+  const followersLength = user?.followers?.length;
+  const followingLength = user?.following?.length;
   // console.log(user.profilePicture);
-
   const posts = useSelector((state) => state.post.otherUserPosts);
+
   const loggedInUser = useSelector((state) => state.user.user);
   const includesInFollowing = user?.followers.includes(loggedInUser?._id);
   // console.log(loggedInUser);
+  const [refresh, setRefresh] = useState(false);
 
+  //** HANDLE FOLLOW */
   const handleFollow = async () => {
     const followData = {
       toFollowUserName: userName,
@@ -67,28 +72,38 @@ const OtherUsersProfile = () => {
     } else {
       dispatch(followUser(followData));
     }
+    setRefresh(true);
   };
-  
+
   useEffect(() => {
-    if (loggedInUser) {
-      dispatch(refreshUser(loggedInUser.userName));
+    setTimeout(() => {
+      if (refresh) {
+        dispatch(refreshUser(loggedInUser?.userName));
+        setRefresh(false);
+      }
+    }, 1000);
+  }, [dispatch, refresh, loggedInUser]);
+
+  useEffect(() => {
+    if (userName === loggedInUser.userName) {
+      Navigate(`/account/${userName}`);
     }
-  }, []);
+  });
   return (
     <>
       {/** NAVBAR */}
       <Box position="fixed" top="0" zIndex="10" width="100%">
-        {!isMedium && <NavBar />}
+        {(!isMedium || !isMobileHeight) && <NavBar />}
       </Box>
       <Box
         display="flex"
         gap="0.2rem"
         width="100%"
-        sx={{ marginTop: !isMedium ? "70px" : null }}
+        sx={{ marginTop: !isMedium || !isMobileHeight ? "70px" : null }}
       >
         {/** SIDE BAR */}
         <Box
-          display={!isMedium ? "none" : "flex"}
+          display={!isMedium || !isMobileHeight ? "none" : "flex"}
           height="100vh"
           maxWidth="300px"
           minWidth="80px"
@@ -157,7 +172,7 @@ const OtherUsersProfile = () => {
                       color: palette.primary.dark,
                       "&:hover": { color: palette.primary.main },
                     }}
-                    // onClick={() => Navigate(`/account/${user?.userName}/edit`)}
+                    onClick={() => Navigate(`/message/${userName}`)}
                   >
                     Message
                   </Button>

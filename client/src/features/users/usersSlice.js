@@ -19,7 +19,7 @@ export const findUsers = createAsyncThunk("user/findusers", async (user) => {
     body: JSON.stringify(user),
   });
   const data = await response.json();
-  console.log(data);
+  // console.log(data);
   return data;
 });
 //** USER PROFILE */
@@ -48,7 +48,7 @@ export const followUser = createAsyncThunk("/user/follow", async (userData) => {
     body: JSON.stringify(userData),
   });
   const data = await response.json();
-  console.log(data);
+  // console.log(data);
   return data;
 });
 //** UNFOLLOW */
@@ -61,7 +61,7 @@ export const unFollowUser = createAsyncThunk("/user/unfollow", async (userData) 
     body: JSON.stringify(userData),
   });
   const data = await response.json();
-  console.log(data);
+  // console.log(data);
   return data;
 });
 //** REDUCERS */
@@ -71,6 +71,7 @@ export const usersSlice = createSlice({
   reducers: {
     onLeave: (state) => {
       state.users = [];
+      state.user = null;
     },
   },
   extraReducers: (builder) => {

@@ -8,27 +8,40 @@ import { Badge } from "@mui/material";
 import MessageIcon from "@mui/icons-material/Message";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 //** REDUCERS */
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getChats } from "features/message/messageSlice";
+import { getUserProfile } from "features/users/usersSlice";
 
-const SidebarComp = ({ Icon, name, path }) => {
+const MessageComp = ({ Icon, name, path, picture }) => {
   const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
   const { palette } = useTheme();
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const small = useMediaQuery("(min-width:500px)");
   const Navigate = useNavigate();
-
-  const notify = useSelector((state)=>state.user.notifications);
+  
+  //** NOTIFICATIONS BADGE */
+  const notify = useSelector((state) => state.user.notifications);
+  const handleFunction = async () => {
+    Navigate(path);
+    const data = {
+      sender: user.userName,
+      receiver: name
+    }
+    dispatch(getChats(data))
+    dispatch(getUserProfile(name))
+  };
   return (
     <Button
       fullWidth
       sx={{
-        margin:!small ? "0" : "0.2rem",
+        margin: !small ? "0" : "0.2rem",
         textTransform: "none",
         color: palette.primary.dark,
         padding: !small ? "0.5" : "1rem",
         "&:hover": { color: palette.primary.main },
       }}
-      onClick={() => Navigate(path)}
+      onClick={handleFunction}
     >
       <Box
         display="flex"
@@ -36,6 +49,7 @@ const SidebarComp = ({ Icon, name, path }) => {
         gap={isNonMobileScreens ? "2.3rem" : "0.5rem"}
         width="100%"
         justifyContent={!isNonMobileScreens ? "center" : null}
+        alignItems="center"
       >
         {Icon && (
           <>
@@ -60,10 +74,14 @@ const SidebarComp = ({ Icon, name, path }) => {
 
             {Icon === MessageIcon || Icon === FavoriteIcon ? null : (
               <Icon
-                src={Icon === Avatar && user ? `http://localhost:3001/assets/${user?.profilePicture}` : null}
+                src={
+                  Icon === Avatar && user
+                    ? `http://localhost:3001/assets/${picture}`
+                    : null
+                }
                 sx={{
-                  width: Icon === Avatar ? 25 : null,
-                  height: Icon === Avatar ? 25 : null,
+                  width: Icon === Avatar ? 35 : null,
+                  height: Icon === Avatar ? 35 : null,
                   bgcolor: Icon === Avatar ? palette.primary.dark : null,
                   fontSize: "25px",
                 }}
@@ -83,4 +101,4 @@ const SidebarComp = ({ Icon, name, path }) => {
   );
 };
 
-export default SidebarComp;
+export default MessageComp;

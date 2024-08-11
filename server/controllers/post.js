@@ -30,7 +30,7 @@ export const userPosts = async(req,res)=>{
         const { userName } = req.params;
         const user = await User.findOne({userName: userName});
         if(!user){
-            res.status(404).json({error: "User not found!"});
+            return res.status(404).json({error: "User not found!"});
         }
         const posts = await Post.find({userId: user._id});
         res.status(200).json({posts: posts});

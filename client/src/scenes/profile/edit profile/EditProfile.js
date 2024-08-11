@@ -22,39 +22,30 @@ const EditProfile = () => {
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const isMobileScreens = useMediaQuery("(min-width:600px)");
   const isSmall = useMediaQuery("(min-width:500px)");
+  const isMobileHeight = useMediaQuery("(min-height:640px)");
   const user = useSelector((state) => state.user.user);
   return (
     <>
       {/* NAVBAR FOR SMALL SCREENS */}
-      {!isMobileScreens && <NavBar />}
+      {(!isMobileScreens || !isMobileHeight) && <NavBar />}
       {/* SIDEBAR */}
-      <Box
-        display="flex"
-        gap="0.2rem"
-        width="100%"
-      >
+      <Box display="flex" gap="0.2rem" width="100%">
         <Box
-          display={!isMobileScreens ? "none" : "flex"}
+          display={!isMobileScreens || !isMobileHeight ? "none" : "flex"}
           height="100vh"
           maxWidth="300px"
-          minWidth="80px"
+          minWidth="200px"
           minHeight="95vh"
-          flexBasis="20"
           position="sticky"
           top="0"
           sx={{
-            flexBasis: isNonMobileScreens ? "30%" : "18%",
+            flexBasis: isNonMobileScreens ? "35%" : "18%",
           }}
         >
           <SideBar />
         </Box>
         {/** SETTING MENU */}
-        <Box
-          display="flex"
-          flexBasis="10"
-          width="50%"
-          flexDirection="column"
-        >
+        <Box display="flex" flexBasis="10" width="30%" flexDirection="column">
           <Box
             backgroundColor={palette.background.alt}
             width="100%"
@@ -67,16 +58,16 @@ const EditProfile = () => {
               "&::-webkit-scrollbar": {
                 width: "0",
               },
+              overflowX: "hidden",
             }}
           >
-            {" "}
             <Typography
               color={palette.primary.dark}
               sx={{
                 fontSize: "20px",
                 fontWeight: "bold",
-                padding:"1rem",
-                textAlign:"center"
+                padding: "1rem",
+                textAlign: "center",
               }}
             >
               Settings
@@ -95,7 +86,6 @@ const EditProfile = () => {
             display="flex"
             backgroundColor={palette.background.alt}
             width="100%"
-            overflow="scroll"
             height="100vh"
             sx={{
               "&::-webkit-scrollbar": {
@@ -107,6 +97,7 @@ const EditProfile = () => {
               width={isMobileScreens ? "60%" : "100%"}
               padding="2rem"
               margin="2rem auto"
+              overflow="hidden"
             >
               <Typography
                 color={palette.primary.dark}

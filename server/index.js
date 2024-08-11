@@ -8,16 +8,21 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createServer } from "http";
 //**LOGGER IMPORTS */
 import { reqResLog } from "./middleware/requestResponseHandler.js";
 import { errorLog } from "./middleware/errorHandler.js";
 //**DATABASE IMPORTS */
 import { connectDB } from "./controllers/connectDB.js";
+//** SOCKETS */
+import { webSockets } from "./services/webSockets.js";
 //** ROUTES IMPORTS */
 import authRoutes from "./routes/auth.js";
 import existRoutes from "./routes/exist.js";
 import postRoutes from "./routes/post.js";
 import userRoutes from "./routes/user.js";
+import messageRoutes from "./routes/message.js";
+
 
 //** FILES CONFIG */
 const __filename = fileURLToPath(import.meta.url);
@@ -47,14 +52,18 @@ app.use("/auth",authRoutes);
 app.use("/find",existRoutes);
 app.use("/post",postRoutes);
 app.use("/user",userRoutes);
+app.use("/message",messageRoutes);
 
-//** SERVER */
+//** SERVER AND SOCKETS*/
+const server = createServer(app);
+webSockets(server);
+
 const PORT = process.env.PORT;
-const server = async () => {
+const hostServer = async () => {
   await connectDB().then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running at PORT ${PORT}`);
     });
   });
 };
-server();
+hostServer();

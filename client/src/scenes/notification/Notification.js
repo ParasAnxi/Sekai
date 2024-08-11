@@ -2,6 +2,7 @@ import { Search } from "@mui/icons-material";
 import {
   Avatar,
   Box,
+  Button,
   IconButton,
   InputBase,
   Typography,
@@ -9,7 +10,14 @@ import {
   useTheme,
 } from "@mui/material";
 import FlexBetween from "components/flex/FlexBetween";
-import { findUsers, onLeave } from "features/users/usersSlice";
+import { refreshUser, setNotifications } from "features/user/userSlice";
+import {
+  findUsers,
+  followUser,
+  getUserProfile,
+  onLeave,
+  unFollowUser,
+} from "features/users/usersSlice";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -19,28 +27,71 @@ import SideBar from "scenes/sidebar/sidebar/SideBar";
 const Notification = () => {
   const isMobileScreens = useMediaQuery("(min-width:800px)");
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
+  const isMobileHeight = useMediaQuery("(min-height:640px)");
+  const isSmall = useMediaQuery("(min-width:600px)");
   const { palette } = useTheme();
   const dispatch = useDispatch();
   const Navigate = useNavigate();
   const [search, SetSearch] = useState("");
-
   const user = useSelector((state) => state.user.user);
+
+  const [refresh, setRefresh] = useState(false);
+  
+  useEffect(() => {
+    setTimeout(() => {
+      if (refresh) {
+        dispatch(refreshUser(user.userName));
+        setRefresh(false);
+      }
+    }, 1000);
+  }, [dispatch, refresh, user]);
+
   useEffect(() => {
     dispatch(findUsers({ userName: search }));
   }, [search]);
-  console.log(search);
-  const usersList = useSelector((state) => state.users.users);
+
+  const getUniqueFollowNotifications = (notifications) => {
+    const seen = new Map();
+    return notifications.filter((notification) => {
+      if (notification.typeOf === "follow") {
+        if (seen.has(notification.userId)) {
+          return false;
+        }
+        seen.set(notification.userId, true);
+      }
+      return true;
+    });
+  };
+
+  const uniqueNotifications = getUniqueFollowNotifications(
+    user?.notifications || []
+  );
+  useEffect(()=>{
+    const notify = uniqueNotifications.length;
+    dispatch(setNotifications(notify));
+  },[])
+
+  const handleFollow =  (userName,id) => {
+    const followData = {
+      toFollowUserName: userName,
+      userName: user?.userName,
+    };
+    if (!user?.following.includes(id)) {
+      dispatch(followUser(followData));
+    }
+    setRefresh(true);
+  };
 
   return (
     <>
       {/** NAVBAR */}
-      <Box position="sticky" top="0" zIndex="10" width="100%">
-        {!isMobileScreens && <NavBar />}
+      <Box position="fixed" top="0" zIndex="10" width="100%">
+        {(!isMobileScreens || !isMobileHeight) && <NavBar />}
       </Box>
       <Box display="flex" gap="0.2rem" width="100%">
         {/** SIDEBAR */}
         <Box
-          display={!isMobileScreens ? "none" : "flex"}
+          display={!isMobileScreens || !isMobileHeight ? "none" : "flex"}
           height="100vh"
           maxWidth="300px"
           minWidth="80px"
@@ -78,6 +129,7 @@ const Notification = () => {
             position="sticky"
             top="0"
             zIndex="9"
+            marginTop={!isMobileScreens || !isMobileHeight ? "70px" : null}
           >
             <Typography
               color={palette.primary.dark}
@@ -92,40 +144,66 @@ const Notification = () => {
             backgroundColor={palette.neutral.light}
             width="70%"
             display="flex"
-            alignItems="center"
+            alignItems={isSmall ? "center" : undefined}
             flexDirection="column"
             gap="0.6rem"
             borderRadius="1rem"
           >
-            {usersList?.map((userList) => (
+            {uniqueNotifications?.map((list) => (
               <Box
                 // backgroundColor="blue"
-                width="80%"
+                // width="50%"
+                width={isSmall ? "60%" : "100%"}
                 display="flex"
+                // justifyContent="space-around"
                 alignItems="center"
                 gap="1rem"
                 padding="0.5rem"
-                key={user._id}
+                key={list._id}
                 sx={{
                   "&:hover": {
                     cursor: "pointer",
                   },
                 }}
-                onClick={() => {
-                  userList.userName === user.userName
-                    ? Navigate(`/account/${user.userName}`)
-                    : Navigate(`/${userList.userName}`);
-                  dispatch(onLeave());
-                }}
+                // onClick={() => {
+                //   // list.userName === user.userName
+                //     // ? Navigate(`/account/${user.userName}`)
+                //     // : Navigate(`/${list.userName}`);
+                //   // dispatch(onLeave());
+                // }}
               >
                 <Avatar
                   sx={{ width: "50px", height: "50px" }}
-                  src={`http://localhost:3001/assets/${userList.profilePicture}`}
+                  src={`http://localhost:3001/assets/${list?.userProfilePicture}`}
+                  onClick={() => Navigate(`/${list?.userUserName}`)}
+                  // onClick={() =>console.log(list.userId)}
                 />
                 <Box>
-                  <Typography>{userList.userName}</Typography>
-                  <Typography>{userList.bio}</Typography>
+                  <Typography
+                    color={palette.primary.dark}
+                    fontSize="0.9rem"
+                    fontWeight="bold"
+                    onClick={() => Navigate(`/${list?.userUserName}`)}
+                  >
+                    {list?.title}
+                  </Typography>
                 </Box>
+                {!user.following.includes(list?.userId) && (
+                  <Button
+                    sx={{
+                      textTransform: "none",
+                      fontSize: "15px",
+                      // padding:"1rem",
+                      color: palette.primary.dark,
+                      "&:hover": { color: palette.primary.main },
+                    }}
+                    onClick={() =>
+                      handleFollow(list?.userUserName, list?.userId)
+                    }
+                  >
+                    Follow Back
+                  </Button>
+                )}
               </Box>
             ))}
           </Box>

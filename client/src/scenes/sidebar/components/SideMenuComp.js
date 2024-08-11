@@ -18,6 +18,8 @@ import {
   setModeMenuOpen,
   setMoreSettingClose,
 } from "features/moreSettings/moreSettingSlice";
+import { onMessageLogOut } from "features/message/messageSlice";
+import { onLeave } from "features/users/usersSlice";
 
 
 const SideMenuComp = ({ Icon, name }) => {
@@ -51,7 +53,9 @@ const SideMenuComp = ({ Icon, name }) => {
         dispatch(setLogOut());
         dispatch(setLogOutPost());
         Navigate("/");
+        dispatch(onLeave());
         dispatch(setMoreSettingClose());
+        dispatch(onMessageLogOut());
         break;
       default:
         dispatch(setMoreSettingClose());

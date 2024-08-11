@@ -11,6 +11,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
 import MovieFilterOutlinedIcon from "@mui/icons-material/MovieFilterOutlined";
 import MessageIcon from "@mui/icons-material/Message";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
 import { Avatar } from "@mui/material";
 //** REDUCERS */
@@ -35,10 +36,10 @@ const NavBar = () => {
       <Box width="100%" display="flex">
         <SidebarComp Icon={HomeIcon} path={"/home"} />
         <SidebarComp Icon={SearchIcon} path={"/search"} />
-        {small && <SidebarComp Icon={AddBoxOutlinedIcon} />}
-        {extraSmall && <SidebarComp Icon={ExploreOutlinedIcon} />}
-        <SidebarComp Icon={MovieFilterOutlinedIcon} />
-        <SidebarComp Icon={MessageIcon} />
+        {small && <SidebarComp Icon={AddBoxOutlinedIcon} path = {"/create"} />}
+        {extraSmall && <SidebarComp Icon={MovieFilterOutlinedIcon} />}
+        <SidebarComp Icon={MessageIcon} path={"/message"} />
+        <SidebarComp Icon={FavoriteIcon} path={"/notification"} />
         <SidebarComp
           Icon={Avatar}
           sx={{ width: 24, height: 24 }}

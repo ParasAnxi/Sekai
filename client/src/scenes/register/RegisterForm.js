@@ -35,7 +35,7 @@ const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const error = useSelector((state)=>state.user.error);
-  console.log(error)
+  // console.log(error)
 //** FORM DATA */
   const handleFormSubmit = async (values) => {
     dispatch(userRegister(values));

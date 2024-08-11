@@ -1,3 +1,6 @@
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+//** MUI */
 import { Search } from "@mui/icons-material";
 import {
   Avatar,
@@ -8,67 +11,56 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import FlexBetween from "components/flex/FlexBetween";
-import { findUsers, onLeave } from "features/users/usersSlice";
-import React, { useEffect, useState } from "react";
+//** REDUX
+import { getChats } from "features/message/messageSlice";
+import { findUsers, getUserProfile, onLeave } from "features/users/usersSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import NavBar from "scenes/sidebar/sidebar/NavBar";
-import SideBar from "scenes/sidebar/sidebar/SideBar";
+//** COMPONENETS
+import FlexBetween from "components/flex/FlexBetween";
 
-const SearchUser = () => {
+const MessageUser = ({ setSearchModal }) => {
   const isMobileScreens = useMediaQuery("(min-width:800px)");
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const isMobileHeight = useMediaQuery("(min-height:640px)");
+
   const { palette } = useTheme();
   const dispatch = useDispatch();
   const Navigate = useNavigate();
-  const [search, SetSearch] = useState("");
 
-  const user = useSelector((state)=>state.user.user);
+  const [search, SetSearch] = useState("");
+  //** USERS */
+  const user = useSelector((state) => state.user.user);
   useEffect(() => {
     dispatch(findUsers({ userName: search }));
   }, [search]);
   const usersList = useSelector((state) => state.users.users);
 
+  //** SEARCH USER */
+  const handleMessageSearch = (userListName) => {
+    if (userListName !== user.userName) {
+      Navigate(`/message/${userListName}`);
+      setSearchModal(false);
+      const data = {
+        sender: user.userName,
+        receiver: userListName,
+      };
+      dispatch(getChats(data));
+      dispatch(getUserProfile(userListName));
+    }
+  };
   return (
     <>
-      {/** NAVBAR */}
-      <Box position="sticky" top="0" zIndex="10" width="100%">
-        {(!isMobileScreens || !isMobileHeight) && <NavBar />}
-      </Box>
       <Box display="flex" gap="0.2rem" width="100%">
-        {/** SIDEBAR */}
-        <Box
-          display={!isMobileScreens || !isMobileHeight ? "none" : "flex"}
-          height="100vh"
-          maxWidth="300px"
-          minWidth="80px"
-          minHeight="95vh"
-          flexBasis="20"
-          position="sticky"
-          top="0"
-          sx={{
-            flexBasis: isNonMobileScreens ? "30%" : "10%",
-          }}
-        >
-          <SideBar />
-        </Box>
         {/* SEARCH AREA */}
         <Box
           display="flex"
           alignItems="center"
           alignContent="center"
           flexBasis="80"
-          //   backgroundColor={palette.background.alt}
           width="100%"
-          //   padding="2rem"
           flexDirection="column"
-          //   backgroundColor="red"
-          //   sx={{ marginTop: !isMobileScreens ? "60px" : null }}
         >
           <Box
-            // backgroundColor={palette.background.alt}
             display="flex"
             width="100%"
             justifyContent="center"
@@ -84,7 +76,7 @@ const SearchUser = () => {
               fontSize="2rem"
               fontWeight="bold"
             >
-              Search Sekai
+              Message
             </Typography>
           </Box>
           <FlexBetween
@@ -98,8 +90,8 @@ const SearchUser = () => {
             zIndex="8"
           >
             <InputBase
-              placeholder="Search..."
               autoFocus
+              placeholder="Search..."
               value={search}
               onChange={(e) => SetSearch(e.target.value)}
               fullWidth
@@ -109,9 +101,9 @@ const SearchUser = () => {
             </IconButton>
           </FlexBetween>
           <Box
-            // backgroundColor="red"
             backgroundColor={palette.neutral.light}
             width="70%"
+            marginTop="1rem"
             display="flex"
             alignItems="center"
             flexDirection="column"
@@ -120,7 +112,6 @@ const SearchUser = () => {
           >
             {usersList?.map((userList) => (
               <Box
-                // backgroundColor="blue"
                 width="80%"
                 display="flex"
                 alignItems="center"
@@ -132,12 +123,7 @@ const SearchUser = () => {
                     cursor: "pointer",
                   },
                 }}
-                onClick={() => {
-                  userList.userName === user.userName
-                    ? Navigate(`/account/${user.userName}`)
-                    : Navigate(`/${userList.userName}`);
-                  dispatch(onLeave());
-                }}
+                onClick={() => handleMessageSearch(userList.userName)}
               >
                 <Avatar
                   sx={{ width: "50px", height: "50px" }}
@@ -156,4 +142,4 @@ const SearchUser = () => {
   );
 };
 
-export default SearchUser;
+export default MessageUser;

@@ -72,7 +72,7 @@ const SideBar = () => {
           <SidebarComp Icon={SearchIcon} name={"Search"} path={"/search"} />
           <SidebarComp Icon={ExploreOutlinedIcon} name={"Explore"} />
           <SidebarComp Icon={MovieFilterOutlinedIcon} name={"Reels"} />
-          <SidebarComp Icon={MessageIcon} name={"Messages"} />
+          <SidebarComp Icon={MessageIcon} name={"Messages"} path={"/message"} />
           <SidebarComp
             Icon={FavoriteIcon}
             name={"Notifications"}
@@ -98,7 +98,7 @@ const SideBar = () => {
           <SidebarComp Icon={SearchIcon} path={"/search"} />
           <SidebarComp Icon={ExploreOutlinedIcon} />
           <SidebarComp Icon={MovieFilterOutlinedIcon} />
-          <SidebarComp Icon={MessageIcon} />
+          <SidebarComp Icon={MessageIcon} path={"/message"} />
           <SidebarComp Icon={FavoriteIcon} path={"/notification"} />
           <SidebarComp Icon={AddBoxOutlinedIcon} path={"/create"} />
           <SidebarComp
