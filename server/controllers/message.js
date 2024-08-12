@@ -23,7 +23,7 @@ export const saveMessage = async (req, res) => {
     res.status(401).json({ error: error });
   }
 };
-
+//** GET MESSAGED USERS */
 export const messagedPeople = async (req, res) => {
   try {
     const { userName } = req.body;
@@ -69,20 +69,24 @@ export const messagedPeople = async (req, res) => {
 //** GET PARTICIPATNS MESSAGES */
 export const getParticipantsChats = async (req, res) => {
   const { sender, receiver } = req.body;
+  const page = req.query.page;
+  const limit = req.query.limit;
+  const pageLimit = page * limit;
   const senderExist = await User.findOne({ userName: sender });
   if (!senderExist) {
     return res.status(404).json({ error: "User not found!" });
   }
   const chats = await Message.find({
     participants: { $all: [sender, receiver] },
-  }).sort({ updatedAt: 1 });
-  const allMessages = chats.map((message) => {
-    return {
-      sender: message.sender,
-      message: message.message,
-      time: message.sentAt,
-      seen: message.seen
-    };
-  });
+  }).sort({ updatedAt: -1 }).limit(pageLimit);
+  const allMessages = chats
+    .map((message) => {
+      return {
+        sender: message.sender,
+        message: message.message,
+        time: message.sentAt,
+        seen: message.seen,
+      };
+    }).reverse();
   res.status(200).json({ messages: allMessages });
 };
