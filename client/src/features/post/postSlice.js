@@ -7,7 +7,8 @@ const initialState = {
     status: "idle",
     error: null,
     userPosts:[],
-    otherUserPosts:[]
+    otherUserPosts:[],
+    userFeed:[],
 };
 
 //** CREATE POST */
@@ -41,6 +42,23 @@ export const otherUserPosts = createAsyncThunk("post/otherUserPosts",async(userN
   // console.log(data);
   return data;
 });
+//** FOLLOWING USER POSTS */
+export const followingUserPosts = createAsyncThunk(
+  "post/followinguserposts",
+  async (user) => {
+    // console.log(user)
+    const response = await fetch(`${POST_API}/followingposts`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(user),
+    });
+    const data = await response.json();
+    // console.log(data);
+    return data;
+  }
+);
 //** REDUCERS */
 export const postSlice = createSlice({
   name: "post",
@@ -58,24 +76,31 @@ export const postSlice = createSlice({
       .addCase(createPost.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(createPost.fulfilled,(state,action)=>{
+      .addCase(createPost.fulfilled, (state, action) => {
         state.status = "idle";
         state.error = action.payload.error ? "error" : "noError";
       })
-      .addCase(userPosts.pending,(state)=>{
+      .addCase(userPosts.pending, (state) => {
         state.status = "idle";
       })
-      .addCase(userPosts.fulfilled,(state,action)=>{
+      .addCase(userPosts.fulfilled, (state, action) => {
         state.status = "idle";
         state.userPosts = action.payload.posts;
       })
-      .addCase(otherUserPosts.pending,(state)=>{
+      .addCase(otherUserPosts.pending, (state) => {
         state.status = "idle";
       })
-      .addCase(otherUserPosts.fulfilled,(state,action)=>{
+      .addCase(otherUserPosts.fulfilled, (state, action) => {
         state.status = "idle";
         state.otherUserPosts = action.payload.posts;
       })
+      .addCase(followingUserPosts.pending, (state) => {
+        state.status = "idle";
+      })
+      .addCase(followingUserPosts.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.userFeed = action.payload.posts;
+      });
     },
 });
 export const { setLogOutPost, setPostError } = postSlice.actions;
