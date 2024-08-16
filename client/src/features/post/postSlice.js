@@ -47,7 +47,8 @@ export const followingUserPosts = createAsyncThunk(
   "post/followinguserposts",
   async (user) => {
     // console.log(user)
-    const response = await fetch(`${POST_API}/followingposts`, {
+    const {page} = user;
+    const response = await fetch(`${POST_API}/followingposts?page=${page}&limit=3`, {
       method: "POST",
       headers: {
         "content-type": "application/json",

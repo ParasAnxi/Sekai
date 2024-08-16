@@ -43,9 +43,10 @@ export const userPosts = async (req, res) => {
 export const followingUserPosts = async (req, res) => {
   try {
     const { userName } = req.body;
-    // const page = req.query.page;
-    // const limit = req.query.limit;
-    // const skip = (page - 1) * limit;
+    const page = req.query.page;
+    const limit = req.query.limit;
+    const skip = (page - 1) * limit;
+    console.log(userName)
     const user = await User.findOne({ userName: userName });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -55,7 +56,7 @@ export const followingUserPosts = async (req, res) => {
     const allPosts = await Post.find({ userId: { $in: user.following } }).sort({
       createdAt: -1,
     })
-    // .skip(skip).limit(limit);
+    .skip(skip).limit(limit);
     res.status(200).json({ posts: allPosts });
   } catch (error) {
     res.status(404).json({ error: error.message });

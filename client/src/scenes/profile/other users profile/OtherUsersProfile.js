@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Button,
+  CircularProgress,
   IconButton,
   Typography,
   useMediaQuery,
@@ -56,6 +57,7 @@ const OtherUsersProfile = () => {
   const includesInFollowing = user?.followers.includes(loggedInUser?._id);
   // console.log(loggedInUser);
   const [refresh, setRefresh] = useState(false);
+  const [isLoading, setIsLoading] = useState("loading");
 
   //** HANDLE FOLLOW */
   const handleFollow = async () => {
@@ -89,6 +91,11 @@ const OtherUsersProfile = () => {
       Navigate(`/account/${userName}`);
     }
   });
+  useEffect(()=>{
+    setTimeout(()=>{
+      setIsLoading("idle");
+    },500)
+  },[])
   return (
     <>
       {/** NAVBAR */}
@@ -117,6 +124,21 @@ const OtherUsersProfile = () => {
         >
           <SideBar />
         </Box>
+        {isLoading === "loading" ? (
+          <Box
+            sx={{
+              display: "flex",
+              widht: "100vw",
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              alignContent: "center",
+              zIndex: "10",
+            }}
+          >
+            <CircularProgress sx={{ color: palette.primary.dark }} />
+          </Box>
+        ) : (
         <Box
           display="flex"
           alignItems="center"
@@ -237,7 +259,7 @@ const OtherUsersProfile = () => {
           >
             <UserProfilePosts posts={posts} />
           </Box>
-        </Box>
+        </Box>)}
       </Box>
     </>
   );

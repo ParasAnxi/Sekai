@@ -2,6 +2,7 @@ import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import {
   Avatar,
   Box,
+  CircularProgress,
   Divider,
   IconButton,
   InputBase,
@@ -15,26 +16,86 @@ import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import { followingUserPosts } from "features/post/postSlice";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Feed = () => {
   const { palette } = useTheme();
   const isMobile = useMediaQuery("(min-width:600px)");
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const isMedium = useMediaQuery("(min-width:800px)");
-  const userFeed = useSelector((state) => state.post.userFeed);
   const user = useSelector((state) => state.user.user);
-  const dispatch = useDispatch();
 
+  const dispatch = useDispatch();
+  const Navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState({});
 
-  useEffect(() => {
-    if (user) {
-      // console.log("hello")
-      dispatch(followingUserPosts({ userName: user.userName }));
+  
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [userFeed, setUserFeed] = useState([]);
+  const [hasMore,setHasMore] = useState(true);
+  
+  const scrollRef = useRef(null);
+  const isFetchingRef = useRef(false);
+
+  const getFeedPosts = useCallback(async () => {
+    if (isFetchingRef.current || !user || !hasMore) return;
+    setLoading(true);
+    isFetchingRef.current = true;
+      try {
+        const res = await fetch(
+          `http://localhost:3001/post/followingposts?page=${page}&limit=3`,
+          {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({ userName: user.userName }),
+          }
+        );
+        const newData = await res.json();
+        if(newData.posts.length === 0){
+          setHasMore(false);
+        }else{
+          setUserFeed((prev) => [...prev, ...newData.posts]);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+        isFetchingRef.current = false;
+      }
+  }, [page, user, hasMore]);
+
+  //** INFINITE SCROLLING */
+  const handleScroll = useCallback(() => {
+    const container = scrollRef.current;
+    if (
+      container.scrollTop + container.clientHeight + 1 >=
+        container.scrollHeight &&
+      !loading
+    ) {
+      setPage((prev) => prev + 1);
     }
-  }, [dispatch, user]);
+  }, [loading,hasMore]);
+  
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [handleScroll]);
+
+  useEffect(() => {
+    getFeedPosts();
+  }, [getFeedPosts]);
 
   useEffect(() => {
     const indexMap = {};
@@ -44,6 +105,7 @@ const Feed = () => {
     setCurrentIndex(indexMap);
   }, [userFeed]);
 
+  //** HANDLE MULPILE IMAGES */
   const handleNext = (feedId) => {
     setCurrentIndex((prevIndex) => ({
       ...prevIndex,
@@ -91,32 +153,25 @@ const Feed = () => {
     } else {
       timeAgo = "just now";
     }
-
     return `• ${timeAgo}`;
   };
-  // console.log(userFeed);
+
   return (
     <Box
-      // backgroundColor={palette.background.default}
-      // backgroundColor="red"
       display="flex"
       flexDirection="column"
-      // justifyContent="center"
       alignItems="center"
       overflow="scroll"
-      //   position="relative"
-      // gap="0.1rem"
       sx={{
         "&::-webkit-scrollbar": {
           width: "0",
         },
         overflowX: "hidden",
       }}
+      ref={scrollRef}
     >
       {userFeed?.map((feed) => (
         <Box
-          // backgroundColor="pink"
-          // backgroundColor={palette.background.alt}
           key={feed._id}
           display="flex"
           flexDirection="column"
@@ -127,9 +182,6 @@ const Feed = () => {
         >
           <Box
             display="flex"
-            // alignItems="center"
-            // backgroundColor="red"
-            // backgroundColor={palette.background.alt}
             justifyContent="space-between"
             width={isMedium ? "50%" : "80%"}
             padding="0.5rem"
@@ -141,11 +193,27 @@ const Feed = () => {
             <Box display="flex" alignItems="center">
               <Avatar
                 src={`http://localhost:3001/assets/${feed?.userProfilePicture}`}
-                sx={{ width: 56, height: 56, mr: 2 }}
+                sx={{
+                  width: 56,
+                  height: 56,
+                  mr: 2,
+                  "&:hover": {
+                    cursor: "pointer",
+                  },
+                }}
+                onClick={() => Navigate(`/${feed?.userName}`)}
               />
               <Box>
                 <Box display="flex">
-                  <Typography sx={{ fontSize: "0.9rem" }}>
+                  <Typography
+                    sx={{
+                      fontSize: "0.9rem",
+                      "&:hover": {
+                        cursor: "pointer",
+                      },
+                    }}
+                    onClick={() => Navigate(`/${feed?.userName}`)}
+                  >
                     {feed?.userName}
                   </Typography>
                   <Typography sx={{ fontSize: "12px", margin: "0 0 0 0.3rem" }}>
@@ -163,16 +231,12 @@ const Feed = () => {
           </Box>
           <Box
             backgroundColor={palette.background.alt}
-            // backgroundColor="white"
-            // borderRadius="1rem 1rem 0 0"
-
             width={isMedium ? "50%" : "80%"}
             height="450px"
             display="flex"
             justifyContent="center"
-            // alignItems="center"
           >
-            {feed.posts.length > 0 && (
+            {feed?.posts?.length > 0 && (
               <>
                 <Box
                   display="flex"
@@ -208,6 +272,8 @@ const Feed = () => {
                     src={`http://localhost:3001/assets/${
                       feed.posts[currentIndex[feed._id]]
                     }`}
+                    loading="lazy"
+                    decoding="async"
                     alt={`Image ${currentIndex[feed._id] + 1}`}
                     sx={{
                       maxWidth: "100%",
@@ -215,7 +281,7 @@ const Feed = () => {
                       display: "block",
                       margin: "auto",
                       objectFit: "cover",
-                      // borderRadius: "10px",
+                      borderRadius: "10px",
                     }}
                   />
                   <IconButton
@@ -332,6 +398,21 @@ const Feed = () => {
               />
             </Box>
           </Box>
+          {loading && (
+            <Box
+              sx={{
+                display: "flex",
+                // width: "100vw",
+                position: "absolute",
+                left: "50%",
+                bottom: "2%",
+                alignContent: "center",
+                zIndex: "10",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
         </Box>
       ))}
     </Box>

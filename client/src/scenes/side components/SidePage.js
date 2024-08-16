@@ -28,10 +28,10 @@ const SidePage = () => {
           sx={{
             cursor: "pointer",
           }}
-          onClick={() => Navigate(`/account/${user.userName}`)}
+          onClick={() => Navigate(`/account/${user?.userName}`)}
         >
-          <Avatar src={`http://localhost:3001/assets/${user.profilePicture}`} />
-          <Typography sx={{ fontSize: "1rem" }}>{user.userName}</Typography>
+          <Avatar src={`http://localhost:3001/assets/${user?.profilePicture}`} />
+          <Typography sx={{ fontSize: "1rem" }}>{user?.userName}</Typography>
           {/* <Typography>{user.bio}</Typography> */}
         </Box>
       </Box>

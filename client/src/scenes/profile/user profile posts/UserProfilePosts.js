@@ -64,6 +64,7 @@ const UserProfilePosts = ({ posts }) => {
                   alt=""
                   width="100%"
                   height="200px"
+                  loading="lazy"
                   style={{ objectFit: "cover" }}
                 />
               )}
