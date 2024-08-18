@@ -71,14 +71,14 @@ export const getParticipantsChats = async (req, res) => {
   const { sender, receiver } = req.body;
   const page = req.query.page;
   const limit = req.query.limit;
-  const pageLimit = page * limit;
+  const skip = (page - 1) * limit;
   const senderExist = await User.findOne({ userName: sender });
   if (!senderExist) {
     return res.status(404).json({ error: "User not found!" });
   }
   const chats = await Message.find({
     participants: { $all: [sender, receiver] },
-  }).sort({ updatedAt: -1 }).limit(pageLimit);
+  }).sort({ updatedAt: -1 }).limit(limit).skip(skip);
   const allMessages = chats
     .map((message) => {
       return {

@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 //** MUI */
 import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Divider,
   InputBase,
   Typography,
@@ -12,50 +13,108 @@ import {
 } from "@mui/material";
 //** REDUX */
 import { useDispatch, useSelector } from "react-redux";
-import { getChats, sendUserMessage } from "features/message/messageSlice";
 import { getUserProfile } from "features/users/usersSlice";
-//** WEB SOCKETS
+//** WEB SOCKETS */
 import io from "socket.io-client";
 
 const socket = io("http://localhost:3001");
 
 const Messages = () => {
   const { palette } = useTheme();
-  const location = useLocation();
   const dispatch = useDispatch();
   const Navigate = useNavigate();
 
   //** USERS */
   const loggedInUser = useSelector((state) => state.user.user);
   const user = useSelector((state) => state.users.user);
-  //** CHATS */
-  const chats = useSelector((state) => state.message.chats);
-  // console.log(chats);
+  const { userName } = useParams();
 
-  //** LOCAL MESSAGES */
-  const [messages, setMessages] = useState(chats);
+  //** LOCAL CHAT */
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [sendMessage, setSendMessage] = useState("");
-  // console.log(sendMessage)
 
-  //** SMOOTH SCROLLING */
-  const scrollRef = useRef();
-  const containerRef = useRef(null);
-  //** CONTAINER SCROLL */
-  // useEffect(() => {
-  //   if (containerRef.current) {
-  //     containerRef.current.scrollTop = containerRef.current.scrollHeight;
-  //   }
-  // }, [user, location]);
+  //** CHAT STATE */
+  const [messages, setMessages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  //** REFS */
+  const scrollRef = useRef(null);
+  const newMessageRef = useRef(null);
+  const isFetchingRef = useRef(false);
+  const previousScrollHeightRef = useRef(0);
+  const debounceTimeoutRef = useRef(null);
+
+  //** SCROLL */
+  const scrollToPosition = (newContentHeight) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop += newContentHeight;
+    }
+  };
+  //** PAGE */
+  useEffect(() => {
+    setPage(1);
+  }, [userName]);
+
+  //** FETCH CHATS */
+  const getMessages = useCallback(async () => {
+    if (isFetchingRef.current || !user || !loggedInUser || !hasMore) return;
+    setLoading(true);
+    isFetchingRef.current = true;
+    const data = {
+      sender: loggedInUser?.userName,
+      receiver: user?.userName,
+      message: sendMessage,
+      time: Date.now(),
+    };
+    try {
+      if (page) {
+        console.log("fetching for ", page);
+        const response = await fetch(
+          `http://localhost:3001/message/getChats?page=${page}&limit=10`,
+          {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(data),
+          }
+        );
+        const newData = await response.json();
+        if (page === 1) {
+          setMessages(newData.messages);
+          setTimeout(() => {
+            if (scrollRef.current) {
+              scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            }
+          }, 0);
+        } else {
+          setMessages((prev) => [...newData.messages, ...prev]);
+          setTimeout(() => scrollToPosition(500), 0);
+        }
+        if (newData.messages.length === 0) {
+          setHasMore(false);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+      isFetchingRef.current = false;
+    }
+  }, [hasMore, page, user]);
+
   //** MESSAGE SCROLL */
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [user, messages, location]);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages.length < 10]);
 
   //** SOCKETS FOR MESSAGES */
   useEffect(() => {
     const socket = io("http://localhost:3001");
-
     socket.emit("addOnlineUsers", loggedInUser.userName);
 
     socket.on("receiveMessage", (data) => {
@@ -70,27 +129,61 @@ const Messages = () => {
     return () => {
       socket.disconnect();
     };
-  }, [socket, loggedInUser, user]);
+  }, [loggedInUser, user]);
 
   //** FETCHING DATA */
   useEffect(() => {
-    const data = {
-      sender: loggedInUser?.userName,
-      receiver: user?.userName,
-      message: sendMessage,
-      time: Date.now(),
-    };
-    dispatch(getChats(data));
     dispatch(getUserProfile(user.userName));
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      setPage(1);
+      setMessages([]);
+    }
+  }, [user]);
+
+  //** SCROLL EVENT */
+  const handleScroll = useCallback(() => {
+    if (
+      scrollRef.current &&
+      scrollRef.current.scrollTop <= 400 &&
+      !loading &&
+      !isFetchingRef.current
+    ) {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      debounceTimeoutRef.current = setTimeout(() => {
+        previousScrollHeightRef.current = scrollRef.current.scrollHeight;
+        setPage((prevPage) => prevPage + 1);
+      }, 100);
+    }
+  }, [loading]);
 
   useEffect(() => {
-    setMessages(chats);
-  }, [user, chats]);
+    const container = scrollRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [handleScroll]);
+  
+  //** MESSAGES */
+  useEffect(() => {
+    if (page) {
+      getMessages();
+    }
+  }, [getMessages, page, user]);
 
   useEffect(() => {
-    arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+    if (arrivalMessage) {
+      setMessages((prev) => [...prev, arrivalMessage]);
+    }
   }, [arrivalMessage]);
 
   const handleKeyDown = (e) => {
@@ -111,8 +204,6 @@ const Messages = () => {
       message: sendMessage,
       time: Date.now(),
     };
-    e.preventDefault();
-    // dispatch(sendUserMessage(data));
     socket.emit("sendMessage", data, (response) => {
       if (response.status === "ok") {
         setMessages((prev) => [...prev, data]);
@@ -121,6 +212,12 @@ const Messages = () => {
     setMessages((prev) => [...prev, data]);
     setSendMessage("");
   };
+  //** SCROLL INTO */
+  useEffect(() => {
+    setTimeout(()=>{
+      newMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+    },50)
+  }, [sendMessage, arrivalMessage]);
 
   //** FORMAT MESSAGE DATE */
   const formatDate = (isoString) => {
@@ -131,6 +228,7 @@ const Messages = () => {
       hour12: true,
     });
   };
+
   //** FORMAT HEADER DATE */
   const formatDateHeader = (isoString) => {
     const messageDate = new Date(isoString);
@@ -153,14 +251,28 @@ const Messages = () => {
 
   return (
     <>
+      {loading && (
+        <Box
+          sx={{
+            display: "flex",
+            position: "absolute",
+            left: "68%",
+            top: "50%",
+            alignContent: "center",
+            zIndex: "10",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
       <Box
-        // ref={containerRef}
+        ref={scrollRef}
         sx={{
           display: "flex",
           flexDirection: "column",
           height: "auto",
           minHeight: "50vh",
-          maxHeight: "79vh",
+          maxHeight: "78vh",
           width: "100%",
           maxWidth: "90%",
           margin: "0 auto",
@@ -279,8 +391,8 @@ const Messages = () => {
                     )}
                   <Typography
                     variant="body2"
-                    ref={index === messages.length - 1 ? scrollRef : null}
                     fontSize="15px"
+                    ref={index === messages.length - 1 ? newMessageRef : null}
                   >
                     {message.message}
                   </Typography>
@@ -311,14 +423,14 @@ const Messages = () => {
             }}
             placeholder="Send message..."
             value={sendMessage}
-            onChange={(e) => handleChange(e)}
+            onChange={handleChange}
             fullWidth
             onKeyDown={handleKeyDown}
           />
           <Button
             sx={{ marginLeft: "0.5rem" }}
             variant="contained"
-            onClick={(e) => handleMessage(e)}
+            onClick={handleMessage}
             disabled={sendMessage.trim().length === 0}
           >
             Send

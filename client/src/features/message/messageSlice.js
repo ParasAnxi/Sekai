@@ -37,26 +37,11 @@ export const sendUserMessage = createAsyncThunk(
       body: JSON.stringify(messageData),
     });
     const data = await response.json();
-    console.log(data);
-    return data;
-  }
-);
-//** MESSAGES */
-export const getChats = createAsyncThunk(
-  "/message/getchats",
-  async (userData) => {
-    const response = await fetch(`${MESSAGE_API}/getchats`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    });
-    const data = await response.json();
     // console.log(data);
     return data;
   }
 );
+
 //** REDUCERS */
 export const messageSlice = createSlice({
   name: "message",
