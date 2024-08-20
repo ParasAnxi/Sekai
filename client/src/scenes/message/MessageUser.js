@@ -12,7 +12,6 @@ import {
   useTheme,
 } from "@mui/material";
 //** REDUX
-import { getChats } from "features/message/messageSlice";
 import { findUsers, getUserProfile, onLeave } from "features/users/usersSlice";
 import { useDispatch, useSelector } from "react-redux";
 //** COMPONENETS
@@ -40,11 +39,6 @@ const MessageUser = ({ setSearchModal }) => {
     if (userListName !== user.userName) {
       Navigate(`/message/${userListName}`);
       setSearchModal(false);
-      const data = {
-        sender: user.userName,
-        receiver: userListName,
-      };
-      dispatch(getChats(data));
       dispatch(getUserProfile(userListName));
     }
   };

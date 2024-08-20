@@ -1,6 +1,7 @@
 //** IMPORTS */
 import Post from "../models/Post.js";
 import User from "../models/User.js";
+import Comment from "../models/Comment.js";
 
 /** CREATE POST */
 export const createPost = async (req, res) => {
@@ -25,6 +26,19 @@ export const createPost = async (req, res) => {
   }
 };
 
+//** GET POST */
+export const getPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const post = await Post.findOne({ _id: postId });
+    if (!post) {
+      return res.status(404).json({ error: "Post not found!" });
+    }
+    res.status(200).json({ post: post });
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+};
 //** USER POSTS */
 export const userPosts = async (req, res) => {
   try {
@@ -46,14 +60,13 @@ export const followingUserPosts = async (req, res) => {
     const page = req.query.page;
     const limit = req.query.limit;
     const skip = (page - 1) * limit;
-    console.log(userName)
     const user = await User.findOne({ userName: userName });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }else if(user.following.length === 0){
         return res.status(400).json({error :"No Posts to fetch"})
     }
-    const allPosts = await Post.find({ userId: { $in: user.following } }).sort({
+    const allPosts = await Post.find({ userId: { $in: [user._id,...user.following] } }).sort({
       createdAt: -1,
     })
     .skip(skip).limit(limit);
@@ -62,3 +75,22 @@ export const followingUserPosts = async (req, res) => {
     res.status(404).json({ error: error.message });
   }
 };
+//** COMMENTS */
+export const addComment = async(req,res)=>{
+  try{
+    const { postId, comment, userName, profilePicture } = req.body;
+    const post = await Post.findOne({ _id: postId });
+    if(!post) return res.status(404).json({error: "Post not found!"});
+    const commentData = new Comment({
+      userName,
+      profilePicture,
+      comment,
+    });
+    post.comments.push(commentData);
+    const addedComment = await post.save();
+    res.status(200).json({post: addedComment})
+  }catch(error){
+    res.status(401).json({ error: error.message });
+  }
+
+}

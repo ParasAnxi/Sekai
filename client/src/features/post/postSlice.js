@@ -9,6 +9,7 @@ const initialState = {
     userPosts:[],
     otherUserPosts:[],
     userFeed:[],
+    postId:null,
 };
 
 //** CREATE POST */
@@ -60,11 +61,31 @@ export const followingUserPosts = createAsyncThunk(
     return data;
   }
 );
+//** ADD COMMENT */
+export const addComment = createAsyncThunk(
+  "post/addcomment",
+  async (commentData) => {
+    const response = await fetch(`${POST_API}/addcomment`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(commentData),
+    });
+    const data = await response.json();
+    // console.log(data);
+    return data;
+  }
+);
+
 //** REDUCERS */
 export const postSlice = createSlice({
   name: "post",
   initialState,
   reducers: {
+    setPostId:(state,action)=>{
+      state.postId = action.payload;
+    },
     setLogOutPost:(state)=>{
       state.userPosts = [];
     },
@@ -104,5 +125,5 @@ export const postSlice = createSlice({
       });
     },
 });
-export const { setLogOutPost, setPostError } = postSlice.actions;
+export const { setLogOutPost, setPostError, setPostId } = postSlice.actions;
 export default postSlice.reducer;

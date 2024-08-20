@@ -1,9 +1,25 @@
+import React, { useState } from "react";
+//** MUI */
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
-import React from "react";
 import FilterNoneIcon from "@mui/icons-material/FilterNone";
+//** COMPONENTS */
+import PostModal from "scenes/post/post modal/PostModal";
+import { setPostId } from "features/post/postSlice";
+import { useDispatch } from "react-redux";
+
 const UserProfilePosts = ({ posts }) => {
   const isNonMobile = useMediaQuery("(min-width:830px)");
   const { palette } = useTheme();
+  const dispatch = useDispatch();
+
+  //** POST MODAL */
+  const [postModalOpen, setPostModalOpen] = useState(false);
+  //** HANDLE POST CLICK */
+  const handlePostClick = (id)=>{
+    dispatch(setPostId(id));
+    setPostModalOpen(true);
+  }
+  
   return (
     <>
       {posts?.length === 0 && (
@@ -17,7 +33,12 @@ const UserProfilePosts = ({ posts }) => {
             justifyContent: "center",
           }}
         >
-          <Typography fontSize="2rem" color={palette.primary.dark} fontWeight="bolder" variant="h1">
+          <Typography
+            fontSize="2rem"
+            color={palette.primary.dark}
+            fontWeight="bolder"
+            variant="h1"
+          >
             No Posts
           </Typography>
         </Box>
@@ -65,12 +86,14 @@ const UserProfilePosts = ({ posts }) => {
                   width="100%"
                   height="200px"
                   loading="lazy"
-                  style={{ objectFit: "cover" }}
+                  style={{ objectFit: "cover", borderRadius:"5px" }}
+                  onClick={()=>handlePostClick(post._id)}
                 />
               )}
             </Box>
           ))
           .reverse()}
+        {postModalOpen && <PostModal postModalOpen={postModalOpen} setPostModalOpen={setPostModalOpen} />}
       </Box>
     </>
   );

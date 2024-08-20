@@ -60,13 +60,6 @@ export const messageSlice = createSlice({
         state.status = "idle";
         state.users = action.payload.users;
       })
-      .addCase(getChats.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(getChats.fulfilled, (state, action) => {
-        state.status = "idle";
-        state.chats = action.payload.messages;
-      });
   },
 });
 

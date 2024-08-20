@@ -87,7 +87,7 @@ const OtherUsersProfile = () => {
   }, [dispatch, refresh, loggedInUser]);
 
   useEffect(() => {
-    if (userName === loggedInUser.userName) {
+    if (userName === loggedInUser?.userName) {
       Navigate(`/account/${userName}`);
     }
   });

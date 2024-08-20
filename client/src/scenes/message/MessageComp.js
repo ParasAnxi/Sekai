@@ -9,7 +9,6 @@ import MessageIcon from "@mui/icons-material/Message";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 //** REDUCERS */
 import { useDispatch, useSelector } from "react-redux";
-import { getChats } from "features/message/messageSlice";
 import { getUserProfile } from "features/users/usersSlice";
 
 const MessageComp = ({ Icon, name, path, picture }) => {
@@ -24,11 +23,6 @@ const MessageComp = ({ Icon, name, path, picture }) => {
   const notify = useSelector((state) => state.user.notifications);
   const handleFunction = async () => {
     Navigate(path);
-    const data = {
-      sender: user.userName,
-      receiver: name
-    }
-    dispatch(getChats(data))
     dispatch(getUserProfile(name))
   };
   return (
