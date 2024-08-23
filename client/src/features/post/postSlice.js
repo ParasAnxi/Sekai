@@ -77,6 +77,22 @@ export const addComment = createAsyncThunk(
     return data;
   }
 );
+//** LIKE */
+export const likePost = createAsyncThunk(
+  "post/likepost",
+  async (postData) => {
+    const response = await fetch(`${POST_API}/likepost`, {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(postData),
+    });
+    const data = await response.json();
+    // console.log(data);
+    return data;
+  }
+);
 
 //** REDUCERS */
 export const postSlice = createSlice({

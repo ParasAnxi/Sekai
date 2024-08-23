@@ -75,6 +75,25 @@ export const followingUserPosts = async (req, res) => {
     res.status(404).json({ error: error.message });
   }
 };
+//** LIKE */
+export const likePost = async(req,res)=>{
+  try{
+    const { userName, postId } = req.body;
+    const user = await User.findOne({userName: userName});
+    const post = await Post.findById(postId);
+    if(!user || !post) return res.status(400).json({error:"Not found!"});
+    const isLiked = post.likes.get(user._id);
+    if(isLiked){
+      post.likes.delete(user._id);
+    }else{
+      post.likes.set(user._id,true);
+    }
+    const updatedPost = await Post.findByIdAndUpdate(postId,{likes: post.likes},{new: true});
+    res.status(200).json(updatedPost);
+  }catch(error){
+    res.status(400).json({error:error.message});
+  }
+};
 //** COMMENTS */
 export const addComment = async(req,res)=>{
   try{
@@ -92,5 +111,5 @@ export const addComment = async(req,res)=>{
   }catch(error){
     res.status(401).json({ error: error.message });
   }
+};
 
-}

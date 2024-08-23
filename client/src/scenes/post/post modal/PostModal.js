@@ -12,11 +12,12 @@ import {
 } from "@mui/material";
 //** REDUX */
 import { useDispatch, useSelector } from "react-redux";
-import { addComment, setPostId } from "features/post/postSlice";
+import { addComment, likePost, setPostId } from "features/post/postSlice";
 import {
   ArrowBackIos,
   ArrowForwardIos,
   Close,
+  Favorite,
   Menu,
   MoreHoriz,
   ThreeDRotationRounded,
@@ -144,6 +145,31 @@ const PostModal = ({ postModalOpen, setPostModalOpen }) => {
       e.preventDefault();
       handleComment(e);
     }
+  };
+
+  const [liked, setIsLiked] = useState(false);
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (user) {
+      const isLiked = Boolean(user?.likes[loggedInUser._id]);
+      const counts = Object.keys(user?.likes).length;
+      setIsLiked(isLiked);
+      setCount(counts);
+    }
+  }, [user]);
+
+  const handleLike = (e) => {
+    e.preventDefault();
+    const likeData = {
+      postId: postId,
+      userName: loggedInUser.userName,
+    };
+    dispatch(likePost(likeData));
+    const newIsLiked = !liked;
+    setIsLiked(!liked);
+    console.log(liked);
+    const newCount = count + (newIsLiked ? 1 : -1);
+    setCount(newCount);
   };
 
   return (
@@ -353,9 +379,12 @@ const PostModal = ({ postModalOpen, setPostModalOpen }) => {
                     flexDirection="column"
                     maxHeight="380px"
                     overflow="auto"
-                    sx={{"&::-webkit-scrollbar": {
+                    sx={{
+                      "&::-webkit-scrollbar": {
                         width: "0",
-                      }, overflowX: "hidden" }}
+                      },
+                      overflowX: "hidden",
+                    }}
                   >
                     {allComments?.map((comment) => {
                       const isExpanded = showFullComment[comment.id] || false;
@@ -402,11 +431,16 @@ const PostModal = ({ postModalOpen, setPostModalOpen }) => {
                   justifyContent="space-between"
                 >
                   <Box display="flex" alignItems="center">
-                    <IconButton>
-                      <FavoriteBorderIcon sx={{ fontSize: "1.6rem" }} />
+                    <IconButton onClick={(e) => handleLike(e)}>
+                      {liked ? (
+                        <Favorite sx={{ fontSize: "1.6rem", color: "red" }} />
+                      ) : (
+                        <FavoriteBorderIcon sx={{ fontSize: "1.6rem" }} />
+                      )}
                     </IconButton>
                     <Typography>
-                      {Object.keys(user?.likes).length} Likes
+                      {/* {Object.keys(user?.likes).length} Likes */}
+                      {count} likes
                     </Typography>
                   </Box>
                   <Box>

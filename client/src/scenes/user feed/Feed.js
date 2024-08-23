@@ -1,10 +1,9 @@
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, Favorite } from "@mui/icons-material";
 import {
   Avatar,
   Box,
   Button,
   CircularProgress,
-  Divider,
   IconButton,
   InputBase,
   Typography,
@@ -16,7 +15,11 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
-import { addComment, followingUserPosts, setPostId } from "features/post/postSlice";
+import {
+  addComment,
+  likePost,
+  setPostId,
+} from "features/post/postSlice";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -151,7 +154,49 @@ const Feed = () => {
     setActiveFeedId(feedId);
     setComment(e.target.value);
   };
+  //** ISLIKED */
+  const [isLiked, setIsLiked] = useState({});
+  useEffect(()=>{
+    const likeMap = userFeed.reduce((acc,feed)=>{
+      acc[feed._id] = Boolean(feed.likes[user._id]);
+      return acc;
+    },{});
+    setIsLiked(likeMap)
+  },[userFeed])
 
+  //** LIKE COUNT */
+  const [likeCount,setLikeCount] = useState({});
+  useEffect(() => {
+    const likeCountMap = userFeed.reduce((acc, feed) => {
+      acc[feed._id] =  Object.keys(feed.likes).length;
+      return acc;
+    }, {});
+    setLikeCount(likeCountMap);
+  }, [userFeed]);
+
+  const handleLike = (e, feedId) => {
+    e.preventDefault();
+    const likeData = {
+      postId: feedId,
+      userName: user.userName,
+    };
+    dispatch(likePost(likeData));
+    setIsLiked((prev)=>{
+      const newIsLiked = !prev[feedId];
+      setLikeCount((prevCount)=>{
+        const newCount = prevCount[feedId] + (newIsLiked ? 1 : -1)
+        return {
+          ...prevCount,
+          [feedId]:newCount
+        };
+      });
+      return{
+        ...prev,
+        [feedId]:newIsLiked,
+      }
+    });
+  };
+  //** COMMENTS */
   const handleComment = (e, feedId) => {
     e.preventDefault();
     const commentData = {
@@ -201,7 +246,7 @@ const Feed = () => {
     }
     return `• ${timeAgo}`;
   };
-
+  
   return (
     <>
       {postModalOpen && (
@@ -223,224 +268,203 @@ const Feed = () => {
         }}
         ref={scrollRef}
       >
-        {userFeed?.map((feed) => (
-          <Box
-            key={feed._id}
-            display="flex"
-            flexDirection="column"
-            justifyContent="center"
-            alignItems="center"
-            width="100%"
-            padding="0.5rem"
-          >
+        {userFeed?.map((feed) => {
+          return (
             <Box
+              key={feed._id}
               display="flex"
-              justifyContent="space-between"
-              width={isMedium ? "50%" : "80%"}
-              padding="0.5rem"
-              sx={{
-                borderTopLeftRadius: "1rem",
-                borderTopRightRadius: "1rem",
-              }}
-              backgroundColor={palette.background.alt}
-            >
-              <Box display="flex" alignItems="center">
-                <Avatar
-                  src={`http://localhost:3001/assets/${feed?.userProfilePicture}`}
-                  sx={{
-                    width: 56,
-                    height: 56,
-                    mr: 2,
-                    "&:hover": {
-                      cursor: "pointer",
-                    },
-                  }}
-                  onClick={() =>handleNavigate(feed?.userName)}
-                />
-                <Box>
-                  <Box display="flex">
-                    <Typography
-                      sx={{
-                        fontSize: "0.9rem",
-                        "&:hover": {
-                          cursor: "pointer",
-                        },
-                      }}
-                      onClick={() => handleNavigate(feed?.userName)}
-                    >
-                      {feed?.userName}
-                    </Typography>
-                    <Typography
-                      sx={{ fontSize: "12px", margin: "0 0 0 0.3rem" }}
-                    >
-                      {formatDate(feed.createdAt)}
-                    </Typography>
-                  </Box>
-                  <Typography>{feed?.location}</Typography>
-                </Box>
-              </Box>
-              <Box display="flex" alignItems="center">
-                <IconButton>
-                  <MoreHorizIcon sx={{ fontSize: "1.6rem" }} />
-                </IconButton>
-              </Box>
-            </Box>
-            <Box
-              backgroundColor={palette.background.alt}
-              width={isMedium ? "50%" : "80%"}
-              height="450px"
-              display="flex"
+              flexDirection="column"
               justifyContent="center"
+              alignItems="center"
+              width="100%"
+              padding="0.5rem"
             >
-              {feed?.posts?.length > 0 && (
-                <>
-                  <Box
-                    display="flex"
-                    alignContent="center"
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                width={isMedium ? "50%" : "80%"}
+                padding="0.5rem"
+                sx={{
+                  borderTopLeftRadius: "1rem",
+                  borderTopRightRadius: "1rem",
+                }}
+                backgroundColor={palette.background.alt}
+              >
+                <Box display="flex" alignItems="center">
+                  <Avatar
+                    src={`http://localhost:3001/assets/${feed?.userProfilePicture}`}
                     sx={{
-                      width: "450px",
-                      height: "auto",
-                      position: "relative",
-                      mb: 2,
-                      // boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",
+                      width: 56,
+                      height: 56,
+                      mr: 2,
+                      "&:hover": {
+                        cursor: "pointer",
+                      },
                     }}
-                  >
-                    <IconButton
-                      onClick={() => handlePrev(feed._id)}
-                      sx={{
-                        display: feed.posts.length === 1 ? "none" : null,
-                        position: "absolute",
-                        left: 16,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        zIndex: 1,
-                        color: "white",
-                        backgroundColor: "rgba(0,0,0,0.5)",
-                        "&:hover": {
-                          backgroundColor: "rgba(0,0,0,0.7)",
-                        },
-                      }}
-                    >
-                      <ArrowBackIos />
-                    </IconButton>
+                    onClick={() => handleNavigate(feed?.userName)}
+                  />
+                  <Box>
+                    <Box display="flex">
+                      <Typography
+                        sx={{
+                          fontSize: "0.9rem",
+                          "&:hover": {
+                            cursor: "pointer",
+                          },
+                        }}
+                        onClick={() => handleNavigate(feed?.userName)}
+                      >
+                        {feed?.userName}
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: "12px", margin: "0 0 0 0.3rem" }}
+                      >
+                        {formatDate(feed.createdAt)}
+                      </Typography>
+                    </Box>
+                    <Typography>{feed?.location}</Typography>
+                  </Box>
+                </Box>
+                <Box display="flex" alignItems="center">
+                  <IconButton>
+                    <MoreHorizIcon sx={{ fontSize: "1.6rem" }} />
+                  </IconButton>
+                </Box>
+              </Box>
+              <Box
+                backgroundColor={palette.background.alt}
+                width={isMedium ? "50%" : "80%"}
+                height="450px"
+                display="flex"
+                justifyContent="center"
+              >
+                {feed?.posts?.length > 0 && (
+                  <>
                     <Box
-                      component="img"
-                      src={`http://localhost:3001/assets/${
-                        feed.posts[currentIndex[feed._id]]
-                      }`}
-                      loading="lazy"
-                      decoding="async"
-                      alt={`Image ${currentIndex[feed._id] + 1}`}
+                      display="flex"
+                      alignContent="center"
                       sx={{
-                        maxWidth: "100%",
-                        maxHeight: "100%",
-                        display: "block",
-                        margin: "auto",
-                        objectFit: "cover",
-                        borderRadius: "10px",
-                      }}
-                    />
-                    <IconButton
-                      onClick={() => handleNext(feed._id)}
-                      sx={{
-                        display: feed.posts.length === 1 ? "none" : null,
-                        position: "absolute",
-                        right: 16,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        zIndex: 1,
-                        color: "white",
-                        backgroundColor: "rgba(0,0,0,0.5)",
-                        "&:hover": {
-                          backgroundColor: "rgba(0,0,0,0.7)",
-                        },
+                        width: "450px",
+                        height: "auto",
+                        position: "relative",
+                        mb: 2,
+                        // boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",
                       }}
                     >
-                      <ArrowForwardIos />
+                      <IconButton
+                        onClick={() => handlePrev(feed._id)}
+                        sx={{
+                          display: feed.posts.length === 1 ? "none" : null,
+                          position: "absolute",
+                          left: 16,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          zIndex: 1,
+                          color: "white",
+                          backgroundColor: "rgba(0,0,0,0.5)",
+                          "&:hover": {
+                            backgroundColor: "rgba(0,0,0,0.7)",
+                          },
+                        }}
+                      >
+                        <ArrowBackIos />
+                      </IconButton>
+                      <Box
+                        component="img"
+                        src={`http://localhost:3001/assets/${
+                          feed.posts[currentIndex[feed._id]]
+                        }`}
+                        loading="lazy"
+                        decoding="async"
+                        alt={`Image ${currentIndex[feed._id] + 1}`}
+                        sx={{
+                          maxWidth: "100%",
+                          maxHeight: "100%",
+                          display: "block",
+                          margin: "auto",
+                          objectFit: "cover",
+                          borderRadius: "10px",
+                        }}
+                      />
+                      <IconButton
+                        onClick={() => handleNext(feed._id)}
+                        sx={{
+                          display: feed.posts.length === 1 ? "none" : null,
+                          position: "absolute",
+                          right: 16,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          zIndex: 1,
+                          color: "white",
+                          backgroundColor: "rgba(0,0,0,0.5)",
+                          "&:hover": {
+                            backgroundColor: "rgba(0,0,0,0.7)",
+                          },
+                        }}
+                      >
+                        <ArrowForwardIos />
+                      </IconButton>
+                    </Box>
+                  </>
+                )}
+              </Box>
+              <Box
+                // backgroundColor="red"
+                width={isMedium ? "50%" : "80%"}
+                padding="0 0.4rem"
+                backgroundColor={palette.background.alt}
+                sx={{
+                  borderBottomLeftRadius: "1rem",
+                  borderBottomRightRadius: "1rem",
+                }}
+              >
+                <Box
+                  display="flex"
+                  // backgroundColor="blue"
+                  width="100%"
+                  justifyContent="space-between"
+                >
+                  <Box display="flex">
+                    <IconButton onClick={(e) => handleLike(e, feed._id)}>
+                      {isLiked[feed._id] ? (
+                        <Favorite
+                          sx={{ fontSize: "1.6rem", color: "red" }}
+                        />
+                      ) : (
+                        <FavoriteBorderIcon  sx={{ fontSize: "1.6rem"}} />
+                      )}
+                    </IconButton>
+                    <IconButton onClick={() => handlePostClick(feed._id)}>
+                      <ChatBubbleOutlineOutlinedIcon
+                        sx={{ fontSize: "1.6rem" }}
+                      />
+                    </IconButton>
+                    <IconButton>
+                      <SendOutlinedIcon sx={{ fontSize: "1.6rem" }} />
                     </IconButton>
                   </Box>
-                </>
-              )}
-            </Box>
-            <Box
-              // backgroundColor="red"
-              width={isMedium ? "50%" : "80%"}
-              padding="0 0.4rem"
-              backgroundColor={palette.background.alt}
-              sx={{
-                borderBottomLeftRadius: "1rem",
-                borderBottomRightRadius: "1rem",
-              }}
-            >
-              <Box
-                display="flex"
-                // backgroundColor="blue"
-                width="100%"
-                justifyContent="space-between"
-              >
-                <Box display="flex">
-                  <IconButton>
-                    <FavoriteBorderIcon sx={{ fontSize: "1.6rem" }} />
-                  </IconButton>
-                  <IconButton onClick={() => handlePostClick(feed._id)}>
-                    <ChatBubbleOutlineOutlinedIcon
-                      sx={{ fontSize: "1.6rem" }}
-                    />
-                  </IconButton>
-                  <IconButton>
-                    <SendOutlinedIcon sx={{ fontSize: "1.6rem" }} />
-                  </IconButton>
+                  <Box>
+                    <IconButton>
+                      <BookmarkBorderOutlinedIcon sx={{ fontSize: "1.6rem" }} />
+                    </IconButton>
+                  </Box>
                 </Box>
-                <Box>
-                  <IconButton>
-                    <BookmarkBorderOutlinedIcon sx={{ fontSize: "1.6rem" }} />
-                  </IconButton>
-                </Box>
-              </Box>
-              <Box
-                display="flex"
-                // backgroundColor="red"
-                // width="50%"
-                justifyContent="space-between"
-              >
-                <Typography sx={{ fontSize: "0.9rem", padding: "0 0.7rem" }}>
-                  {Object.keys(feed.likes).length} likes
-                </Typography>
-              </Box>
-              <Box
-                display="flex"
-                // backgroundColor="red"
-                // width="50%"
-                justifyContent="space-between"
-              >
-                <Typography
-                  component="pre"
-                  sx={{
-                    fontSize: "0.9rem",
-                    padding: "0 0.7rem",
-                    "&:hover": {
-                      cursor: "pointer",
-                    },
-                  }}
-                  onClick={()=>handleNavigate(feed?.userName)}
+                <Box
+                  display="flex"
+                  // backgroundColor="red"
+                  // width="50%"
+                  justifyContent="space-between"
                 >
-                  {feed?.userName} {feed?.description}
-                </Typography>
-              </Box>
-              <Box
-                display="flex"
-                // backgroundColor="red"
-                // width="50%"
-                justifyContent="space-between"
-              >
-                {feed.comments.length === 0 ? (
-                  <Typography
-                    component="pre"
-                    sx={{ fontSize: "0.9rem", padding: "0 0.7rem" }}
-                  >
-                    0 comments
+                  <Typography sx={{ fontSize: "0.9rem", padding: "0 0.7rem" }}>
+                    {likeCount[feed._id]} likes
                   </Typography>
-                ) : (
+                </Box>
+                <Box
+                  display="flex"
+                  // backgroundColor="red"
+                  // width="50%"
+                  justifyContent="space-between"
+                >
                   <Typography
                     component="pre"
                     sx={{
@@ -450,53 +474,82 @@ const Feed = () => {
                         cursor: "pointer",
                       },
                     }}
-                    onClick={() => handlePostClick(feed._id)}
+                    onClick={() => handleNavigate(feed?.userName)}
                   >
-                    view all {feed.comments.length} comments
+                    {feed?.userName} {feed?.description}
                   </Typography>
-                )}
-              </Box>
-              <Box
-                display="flex"
-                // backgroundColor="red"
-                // width="50%"
-                justifyContent="space-between"
-              >
-                <InputBase
-                  value={activeFeedId === feed._id ? comment : ""}
-                  onChange={(e) => handleCommentChange(e, feed._id)}
-                  placeholder="Add a comment..."
-                  sx={{ flex: 1, padding: "10px", fontSize: "15px" }}
-                  onKeyDown={(e) => handleKeyDown(e, feed._id)}
-                />
-                <Button
-                  sx={{ marginLeft: "0.5rem" }}
-                  onClick={(e) => handleComment(e, feed._id)}
-                  disabled={
-                    comment.trim().length === 0 || activeFeedId !== feed._id
-                  }
+                </Box>
+                <Box
+                  display="flex"
+                  // backgroundColor="red"
+                  // width="50%"
+                  justifyContent="space-between"
                 >
-                  Post
-                </Button>
+                  {feed.comments.length === 0 ? (
+                    <Typography
+                      component="pre"
+                      sx={{ fontSize: "0.9rem", padding: "0 0.7rem" }}
+                    >
+                      0 comments
+                    </Typography>
+                  ) : (
+                    <Typography
+                      component="pre"
+                      sx={{
+                        fontSize: "0.9rem",
+                        padding: "0 0.7rem",
+                        "&:hover": {
+                          cursor: "pointer",
+                        },
+                      }}
+                      onClick={() => handlePostClick(feed._id)}
+                    >
+                      view all {feed.comments.length} comments
+                    </Typography>
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  // backgroundColor="red"
+                  // width="50%"
+                  justifyContent="space-between"
+                >
+                  <InputBase
+                    value={activeFeedId === feed._id ? comment : ""}
+                    onChange={(e) => handleCommentChange(e, feed._id)}
+                    placeholder="Add a comment..."
+                    sx={{ flex: 1, padding: "10px", fontSize: "15px" }}
+                    onKeyDown={(e) => handleKeyDown(e, feed._id)}
+                  />
+                  <Button
+                    sx={{ marginLeft: "0.5rem" }}
+                    onClick={(e) => handleComment(e, feed._id)}
+                    disabled={
+                      comment.trim().length === 0 || activeFeedId !== feed._id
+                    }
+                  >
+                    Post
+                  </Button>
+                </Box>
               </Box>
+              {loading && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    // width: "100vw",
+                    position: "absolute",
+                    left: "50%",
+                    bottom: "2%",
+                    alignContent: "center",
+                    zIndex: "10",
+                  }}
+                >
+                  <CircularProgress />
+                </Box>
+              )}
             </Box>
-            {loading && (
-              <Box
-                sx={{
-                  display: "flex",
-                  // width: "100vw",
-                  position: "absolute",
-                  left: "50%",
-                  bottom: "2%",
-                  alignContent: "center",
-                  zIndex: "10",
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            )}
-          </Box>
-        ))}
+          );
+        })}
       </Box>
     </>
   );
